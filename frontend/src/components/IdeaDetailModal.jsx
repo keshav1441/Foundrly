@@ -136,21 +136,20 @@ export default function IdeaDetailModal({ isOpen, onClose, idea, onUpdate, canEd
           onClick={(e) => e.stopPropagation()}
           className="relative bg-darkBg border border-gray-800 rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
         >
-          {/* Close Button */}
-          <button
-            type="button"
-            onClick={handleClose}
-            className="absolute top-4 right-4 z-50 w-10 h-10 flex items-center justify-center text-textGray hover:text-textLight hover:bg-gray-800/50 rounded-full transition-colors"
-            aria-label="Close modal"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-
           <div className="p-6 md:p-8">
             {/* Header Section */}
             <div className="relative mb-6 bg-gradient-to-br from-black via-darkBg to-black rounded-lg overflow-hidden border border-gray-800">
+              {/* Close Button - Positioned in header */}
+              <button
+                type="button"
+                onClick={handleClose}
+                className="absolute top-3 right-3 md:top-4 md:right-4 z-20 w-8 h-8 md:w-10 md:h-10 flex items-center justify-center text-white hover:text-textLight hover:bg-black/30 rounded-full transition-colors"
+                aria-label="Close modal"
+              >
+                <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
               <div className="absolute inset-0 bg-netflixRed/5" />
               <div className="relative z-10 p-6 md:p-8 text-center">
                 {isEditing ? (
