@@ -26,7 +26,10 @@ export default function Home() {
 
   const handleOAuthLogin = (provider) => {
     const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000/api";
-    window.location.href = `${API_BASE_URL}/auth/${provider}`;
+    const authUrl = `${API_BASE_URL}/auth/${provider}`;
+    console.log('OAuth URL:', authUrl);
+    console.log('API_BASE_URL from env:', import.meta.env.VITE_API_BASE_URL);
+    window.location.href = authUrl;
   };
 
   const handleEmailAuth = async (e) => {
