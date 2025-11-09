@@ -332,13 +332,30 @@ export default function Profile() {
               <div>
                 <label className="block text-textLight font-light mb-2">Interests</label>
                 <textarea
-                  value={formData.interests.join(', ')}
+                  value={formData.interestsInput || formData.interests.join(', ')}
                   onChange={(e) => {
+                    const inputValue = e.target.value;
+                    // Store raw input to allow typing incomplete interests
+                    setFormData({ 
+                      ...formData, 
+                      interestsInput: inputValue,
+                      interests: inputValue
+                        .split(',')
+                        .map(interest => interest.trim())
+                        .filter(interest => interest.length > 0)
+                    });
+                  }}
+                  onBlur={(e) => {
+                    // Clean up on blur - remove the raw input and keep only parsed interests
                     const interestsArray = e.target.value
                       .split(',')
                       .map(interest => interest.trim())
                       .filter(interest => interest.length > 0);
-                    setFormData({ ...formData, interests: interestsArray });
+                    setFormData({ 
+                      ...formData, 
+                      interests: interestsArray,
+                      interestsInput: undefined
+                    });
                   }}
                   placeholder="Enter interests separated by commas (e.g., AI, Startups, Technology)"
                   className="w-full bg-black border border-gray-800 rounded-md px-4 py-3 text-textLight focus:outline-none focus:border-netflixRed/50 transition resize-none font-light"
