@@ -25,10 +25,22 @@ export default function Home() {
   };
 
   const handleOAuthLogin = (provider) => {
-    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000/api";
+    // Get API base URL from environment variable
+    let API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+    
+    // If not set, use production default or localhost fallback
+    if (!API_BASE_URL || API_BASE_URL.trim() === '') {
+      // Check if we're in production (not localhost)
+      const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+      API_BASE_URL = isProduction 
+        ? 'https://foundrly.onrender.com/api'  // Production backend URL
+        : 'http://localhost:4000/api';          // Local development
+    }
+    
     const authUrl = `${API_BASE_URL}/auth/${provider}`;
     console.log('OAuth URL:', authUrl);
     console.log('API_BASE_URL from env:', import.meta.env.VITE_API_BASE_URL);
+    console.log('Using API_BASE_URL:', API_BASE_URL);
     window.location.href = authUrl;
   };
 
