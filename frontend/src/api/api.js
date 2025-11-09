@@ -32,6 +32,11 @@ export const api = {
   // AI
   generateAndSave: (count = 5, userId) =>
     axios.post(`${API_BASE_URL}/ai/generate-and-save`, { count, userId }),
+  roastIdea: (ideaId) => axios.post(`${API_BASE_URL}/ai/roast`, { ideaId }),
+  pitchBadly: (ideaId, mode) =>
+    axios.post(`${API_BASE_URL}/ai/pitch-badly`, { ideaId, mode }),
+  pitchBadlyWithData: (ideaData, mode) =>
+    axios.post(`${API_BASE_URL}/ai/pitch-badly`, { ideaData, mode }),
 
   // Requests
   createRequest: (ideaId, message) =>

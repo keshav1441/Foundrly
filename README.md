@@ -13,6 +13,8 @@ Foundrly is a Tinder-inspired swipe-based matching app for founders with terribl
 - **Real-time Chat** - Socket.io-powered chat with split-screen UI (matches list + active chat)
 - **Notifications System** - Real-time notifications for incoming requests and messages with mark-as-read functionality
 - **AI Idea Generator** - OpenAI/Gemini integration to generate hilariously bad startup ideas
+- **AI Roast My Idea 🔥** - Get your ideas brutally roasted by an AI with stand-up comedian energy
+- **Pitch It Badly Mode 🤡** - Rewrite your startup ideas in cursed styles (Investor, TechBro, Doomer editions)
 - **User Profiles** - Netflix-style profile pages with idea carousels
 - **Responsive Design** - Works on mobile, tablet, and desktop
 
@@ -20,9 +22,10 @@ Foundrly is a Tinder-inspired swipe-based matching app for founders with terribl
 
 ### The Inspiration
 
-Foundrly was born from a simple question: *What if finding a co-founder was as easy as swiping on dating apps, but for startup ideas?* The name "Foundrly" (pronounced "founder-ly") reflects this vision—a playful combination of "founder" and "friendly."
+Foundrly was born from a simple question: _What if finding a co-founder was as easy as swiping on dating apps, but for startup ideas?_ The name "Foundrly" (pronounced "founder-ly") reflects this vision—a playful combination of "founder" and "friendly."
 
 The concept emerged from three key observations:
+
 1. **Tinder's swipe mechanics** work brilliantly for quick decision-making
 2. **Netflix's dark, cinematic UI** creates an immersive, engaging experience
 3. **The startup world** needed a better way to connect founders around ideas
@@ -36,22 +39,27 @@ The core innovation is the **Request System**. Unlike typical matching apps wher
 1. **Swipe right on an idea** → Send a request message to the idea creator
 2. **Idea creator reviews and accepts** → Match is created
 
-This adds intentionality: you explain *why* you're interested, and creators choose who to work with. It mirrors real co-founder dynamics—it's not just about mutual interest, but about having a conversation first.
+This adds intentionality: you explain _why_ you're interested, and creators choose who to work with. It mirrors real co-founder dynamics—it's not just about mutual interest, but about having a conversation first.
 
 Additional innovations include:
+
 - **AI-powered idea generation** using Google Gemini to create and refine startup ideas
+- **AI Roast & Pitch It Badly**: Interactive features that use AI to roast ideas or rewrite them in cursed pitch styles, adding humor and engagement
 - **Idea-centric matching**: Conversations are organized by idea, so multiple conversations with the same person about different ideas are clearly separated
 - **Real-time notifications** for requests and messages, keeping users engaged
 
 ### The Design Philosophy
 
 #### Netflix-Inspired Dark Theme
+
 The entire UI embraces a dark, cinematic aesthetic with red accents, glassmorphism effects, and smooth transitions. This creates a premium feel and reduces eye strain during long sessions.
 
 #### Tinder-Style Swipe Mechanics
+
 The swipe interface uses Framer Motion for smooth, natural gestures. Cards respond intuitively to drag, with visual feedback for left/right actions.
 
 #### Boat-Style Logo
+
 The logo is minimalist and bold—clean lines, strong presence, easy to recognize at any size.
 
 ### How We Built It
@@ -59,6 +67,7 @@ The logo is minimalist and bold—clean lines, strong presence, easy to recogniz
 #### Architecture Decisions
 
 We chose a **full-stack JavaScript approach**:
+
 - **Backend**: Node.js + Express.js for a RESTful API
 - **Database**: MongoDB with Mongoose for flexible schema
 - **Real-time**: Socket.io for live chat
@@ -67,24 +76,28 @@ We chose a **full-stack JavaScript approach**:
 #### Key Technical Challenges
 
 1. **Real-time Synchronization**
-   - *Problem*: Keeping chat messages and notifications in sync across clients
-   - *Solution*: Socket.io with room-based architecture, plus deduplication to prevent duplicate messages
+
+   - _Problem_: Keeping chat messages and notifications in sync across clients
+   - _Solution_: Socket.io with room-based architecture, plus deduplication to prevent duplicate messages
 
 2. **Request System Flow**
-   - *Problem*: Implementing the two-step matching process
-   - *Solution*: A `Request` model with status tracking (`pending`, `accepted`, `rejected`) and a `viewed` flag for notifications
+
+   - _Problem_: Implementing the two-step matching process
+   - _Solution_: A `Request` model with status tracking (`pending`, `accepted`, `rejected`) and a `viewed` flag for notifications
 
 3. **Idea-Centric Chat Organization**
-   - *Problem*: Multiple conversations with the same person about different ideas
-   - *Solution*: Each match is tied to a specific idea, and the UI displays the idea title and "by {person name}" to distinguish conversations
+
+   - _Problem_: Multiple conversations with the same person about different ideas
+   - _Solution_: Each match is tied to a specific idea, and the UI displays the idea title and "by {person name}" to distinguish conversations
 
 4. **Smooth Swipe Animations**
-   - *Problem*: Creating natural, responsive swipe gestures
-   - *Solution*: Framer Motion with drag constraints, spring physics, and proper cleanup on unmount
+
+   - _Problem_: Creating natural, responsive swipe gestures
+   - _Solution_: Framer Motion with drag constraints, spring physics, and proper cleanup on unmount
 
 5. **AI Integration**
-   - *Problem*: Generating coherent, creative startup ideas
-   - *Solution*: Google Gemini API with structured prompts and error handling for API failures
+   - _Problem_: Generating coherent, creative startup ideas
+   - _Solution_: Google Gemini API with structured prompts and error handling for API failures
 
 #### Development Process
 
@@ -97,6 +110,7 @@ We chose a **full-stack JavaScript approach**:
 ### What We Learned
 
 #### Technical Skills
+
 - Real-time web applications with WebSockets
 - Complex state management in React (matches, messages, notifications)
 - MongoDB schema design for relationships (Users, Ideas, Matches, Requests, Messages)
@@ -104,6 +118,7 @@ We chose a **full-stack JavaScript approach**:
 - Animation libraries (Framer Motion) for smooth interactions
 
 #### Product Insights
+
 - Intentional matching beats instant matching for co-founder discovery
 - Context matters: organizing conversations by idea improves clarity
 - Real-time notifications significantly increase engagement
@@ -112,24 +127,28 @@ We chose a **full-stack JavaScript approach**:
 #### Challenges Overcome
 
 1. **Socket.io Connection Management**
-   - *Challenge*: Handling reconnections, room joins, and cleanup
-   - *Learning*: Proper event listener management and connection state tracking
+
+   - _Challenge_: Handling reconnections, room joins, and cleanup
+   - _Learning_: Proper event listener management and connection state tracking
 
 2. **Notification System Complexity**
-   - *Challenge*: Tracking unread requests and messages across different types
-   - *Learning*: Unified notification model with type discrimination
+
+   - _Challenge_: Tracking unread requests and messages across different types
+   - _Learning_: Unified notification model with type discrimination
 
 3. **Performance with Many Matches**
-   - *Challenge*: Rendering large lists of matches efficiently
-   - *Learning*: Virtualization techniques and proper React key usage
+
+   - _Challenge_: Rendering large lists of matches efficiently
+   - _Learning_: Virtualization techniques and proper React key usage
 
 4. **AI Prompt Engineering**
-   - *Challenge*: Getting consistent, creative output from AI
-   - *Learning*: Iterative prompt refinement and structured response parsing
+   - _Challenge_: Getting consistent, creative output from AI
+   - _Learning_: Iterative prompt refinement and structured response parsing
 
 ### The Result
 
 Foundrly successfully combines:
+
 - **Tinder's swipe mechanics** for quick idea discovery
 - **Netflix's dark, cinematic UI** for an engaging experience
 - **Boat-style logo** for a clean, memorable brand
@@ -139,7 +158,7 @@ The platform enables founders to discover ideas, connect with creators, and star
 
 ---
 
-*Built with passion, curiosity, and a healthy dose of humor about the startup world. Because sometimes, the best ideas come from the worst ones.* 🚀
+_Built with passion, curiosity, and a healthy dose of humor about the startup world. Because sometimes, the best ideas come from the worst ones._ 🚀
 
 ## 📁 Project Structure
 
@@ -158,6 +177,7 @@ foundrly/
 │   │   ├── pages/    # Page components (Marketing, Home, SwipePage, Chat, Profile, Requests)
 │   │   ├── components/ # Reusable components (SwipeDeck, Navbar, RequestMessageModal, Notifications, etc.)
 │   │   ├── contexts/ # React contexts (Auth, Toast)
+│   │   ├── utils/    # Utility functions (markdownFormatter)
 │   │   └── api/      # API client
 │   └── package.json
 └── README.md
@@ -306,9 +326,24 @@ The frontend will run on `http://localhost:3000`
    - Only unread notifications are displayed
 
 7. **Profile**:
+
    - View your profile or other users' profiles
    - See ideas you've worked on in a carousel
    - Edit your own profile
+
+8. **AI Roast My Idea 🔥**:
+
+   - Click "Roast It" on any idea in the detail modal
+   - Receive a hilariously savage takedown from an AI with stand-up comedian energy
+   - Perfect for getting brutally honest feedback on your startup ideas
+
+9. **Pitch It Badly Mode 🤡**:
+   - Click "Pitch It Badly" on any idea in the detail modal
+   - Choose from three cursed pitch styles:
+     - **Investor Edition**: "We're revolutionizing the act of burning VC money."
+     - **TechBro Edition**: "We're disrupting human interaction using blockchain and vibes."
+     - **Doomer Edition**: "It doesn't matter; the robots win anyway."
+   - Get an AI-generated parody pitch perfect for meme fuel and demos
 
 ## 🌐 API Endpoints
 
@@ -376,6 +411,12 @@ The frontend will run on `http://localhost:3000`
 - `POST /api/ai/generate-and-save` - Generate ideas as editable templates (requires authentication and API keys)
   - Body: `{ count: number }` (default: 1)
   - Returns ideas for user to edit before saving
+- `POST /api/ai/roast` - Roast an idea with sarcastic investor/stand-up comedian energy (requires authentication)
+  - Body: `{ ideaId: string }`
+  - Returns: `{ roast: string }` - A hilariously brutal takedown of the idea
+- `POST /api/ai/pitch-badly` - Generate a cursed pitch for an idea (requires authentication)
+  - Body: `{ ideaId: string, mode: "investor" | "techbro" | "doomer" }` OR `{ ideaData: { name, oneLiner, tags }, mode }`
+  - Returns: `{ pitch: string, mode: string }` - A parody pitch in the requested style
 
 ## 🔧 Scripts
 

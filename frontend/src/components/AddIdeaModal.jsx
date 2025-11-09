@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { api } from '../api/api';
 
-export default function AddIdeaModal({ isOpen, onClose, onIdeaAdded, onIdeasGenerated, onIdeaGenerated }) {
+export default function AddIdeaModal({ isOpen, onClose, onIdeaGenerated }) {
   const { user } = useAuth();
   const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState('add'); // 'add' or 'generate'
