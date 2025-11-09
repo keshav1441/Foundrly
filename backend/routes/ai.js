@@ -221,8 +221,10 @@ async function pitchPolish(idea) {
     }
   }
 
-  // Fallback mock pitch
-  return `We're revolutionizing the ${idea} space with cutting-edge technology and a scalable business model. Our platform leverages AI and blockchain to create unprecedented value for stakeholders. Join us in disrupting this $10B market.`;
+  // If Gemini is not available, throw an error
+  throw new Error(
+    "No AI service available. Please configure GEMINI_API_KEY in your .env file."
+  );
 }
 
 export default router;
