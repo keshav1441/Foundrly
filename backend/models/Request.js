@@ -11,6 +11,7 @@ const requestSchema = new mongoose.Schema(
       enum: ['pending', 'accepted', 'rejected'], 
       default: 'pending' 
     },
+    viewed: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

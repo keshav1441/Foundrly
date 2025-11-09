@@ -58,6 +58,19 @@ router.post('/', authenticateJWT, async (req, res) => {
       .populate('ideaOwner', 'name avatar')
       .populate('idea', 'name oneLiner');
 
+    // Emit notification to idea owner via Socket.io
+    if (ioInstance) {
+      try {
+        const chatNamespace = ioInstance.of('/chat');
+        chatNamespace.to(`user:${ideaOwnerId}`).emit('new_request_notification', {
+          type: 'request',
+          request: populatedRequest,
+        });
+      } catch (error) {
+        console.error('Socket.io emit error:', error);
+      }
+    }
+
     res.status(201).json(populatedRequest);
   } catch (error) {
     console.error('Create request error:', error);

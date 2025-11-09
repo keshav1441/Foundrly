@@ -38,6 +38,7 @@ import memeRoutes from "./routes/memes.js";
 import aiRoutes from "./routes/ai.js";
 import chatRoutes from "./routes/chat.js";
 import requestRoutes from "./routes/requests.js";
+import notificationRoutes from "./routes/notifications.js";
 
 // Import Socket.io setup
 import { setupSocketIO } from "./socket/chat.js";
@@ -75,6 +76,7 @@ app.use("/api/memes", memeRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/requests", requestRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // Setup Socket.io
 setupSocketIO(io);

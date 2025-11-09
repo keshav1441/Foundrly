@@ -1,5 +1,6 @@
 import express from 'express';
 import Message from '../models/Message.js';
+import Match from '../models/Match.js';
 import { authenticateJWT } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -52,6 +53,17 @@ router.post('/:matchId/messages', authenticateJWT, async (req, res) => {
         console.log(`Emitting message to room: ${room}`, populatedMessage._id);
         chatNamespace.to(room).emit('message', populatedMessage);
         
+        // Emit notification to the recipient (if not in the room)
+        const match = await Match.findById(matchId);
+        if (match) {
+          const recipientId = match.user1.toString() === userId ? match.user2 : match.user1;
+          chatNamespace.to(`user:${recipientId}`).emit('new_message_notification', {
+            type: 'message',
+            message: populatedMessage,
+            match: match,
+          });
+        }
+        
         // Log room info for debugging
         const socketsInRoom = await chatNamespace.in(room).fetchSockets();
         console.log(`Sockets in room ${room}:`, socketsInRoom.length);
@@ -66,6 +78,31 @@ router.post('/:matchId/messages', authenticateJWT, async (req, res) => {
   } catch (error) {
     console.error('Send message error:', error);
     res.status(500).json({ error: 'Failed to send message' });
+  }
+});
+
+// Mark messages as read
+router.post('/:matchId/messages/read', authenticateJWT, async (req, res) => {
+  try {
+    const { matchId } = req.params;
+    const userId = req.user.sub;
+
+    // Mark all unread messages in this match as read (except ones sent by the user)
+    await Message.updateMany(
+      {
+        match: matchId,
+        sender: { $ne: userId },
+        read: false,
+      },
+      {
+        read: true,
+      }
+    );
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Mark messages read error:', error);
+    res.status(500).json({ error: 'Failed to mark messages as read' });
   }
 });
 

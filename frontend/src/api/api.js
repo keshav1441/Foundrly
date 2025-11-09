@@ -23,6 +23,8 @@ export const api = {
     axios.get(`${API_BASE_URL}/chat/${matchId}/messages`),
   sendMessage: (matchId, content) =>
     axios.post(`${API_BASE_URL}/chat/${matchId}/messages`, { content }),
+  markMessagesRead: (matchId) =>
+    axios.post(`${API_BASE_URL}/chat/${matchId}/messages/read`),
 
   // Memes
   getMemes: (params = {}) => axios.get(`${API_BASE_URL}/memes`, { params }),
@@ -53,4 +55,15 @@ export const api = {
     axios.post(`${API_BASE_URL}/requests/${requestId}/accept`),
   rejectRequest: (requestId) =>
     axios.post(`${API_BASE_URL}/requests/${requestId}/reject`),
+
+  // Notifications
+  getNotifications: () => axios.get(`${API_BASE_URL}/notifications`),
+  markNotificationRead: (id, type) =>
+    axios.post(`${API_BASE_URL}/notifications/${id}/read`, { type }),
+  deleteNotification: (id, type) =>
+    axios.delete(`${API_BASE_URL}/notifications/${id}`, { data: { type } }),
+  markAllNotificationsRead: () =>
+    axios.post(`${API_BASE_URL}/notifications/read-all`),
+  deleteAllNotifications: () =>
+    axios.delete(`${API_BASE_URL}/notifications/all`),
 };

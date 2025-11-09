@@ -208,6 +208,13 @@ export default function Chat() {
       const loadedMessages = messagesResponse.data;
       setMessages(loadedMessages);
       
+      // Mark messages as read when viewing the chat
+      try {
+        await api.markMessagesRead(selectedMatchId);
+      } catch (error) {
+        console.error('Failed to mark messages as read:', error);
+      }
+      
       // Initialize processed message IDs with loaded messages
       processedMessageIds.current.clear();
       loadedMessages.forEach(msg => {

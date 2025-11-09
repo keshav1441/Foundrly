@@ -1,34 +1,38 @@
 # Foundrly
 
-**Because every bad founder needs company.**
+**Swipe Right on Bad Startup Ideas**
 
-Foundrly is a Tinder-style app for bad startup ideas where users swipe idea cards, match with people who liked the same idea, and chat in real-time. Includes an AI-powered idea generator, meme feed, and all the hooks needed to iterate further.
+Foundrly is a Netflix-inspired swipe-based matching app for founders with terrible startup ideas. Swipe through ideas, send requests to idea creators, match when requests are accepted, and chat in real-time. Includes an AI-powered idea generator, meme feed, and a cinematic dark theme.
 
 ## 🚀 Features
 
-- **OAuth Authentication** - Sign in with Google, GitHub, or use mock login for local dev
-- **Tinder-style Swipe UI** - Swipe through bad startup ideas with smooth animations
-- **Matching System** - Match with users who liked the same idea, or automatically match when someone likes your idea
-- **Real-time Chat** - Socket.io-powered chat for matched users
+- **JWT Authentication** - Sign in with email/password or Google OAuth
+- **Tinder-Style Swipe UI** - Cinematic card-based swipe interface with smooth animations
+- **Request System** - Send messages to idea creators when you swipe right on their ideas
+- **Matching System** - Match when idea creators accept your request
+- **Real-time Chat** - Socket.io-powered chat with split-screen UI (matches list + active chat)
+- **Notifications System** - Real-time notifications for incoming requests and messages with mark-as-read functionality
 - **AI Idea Generator** - OpenAI/Gemini integration to generate hilariously bad startup ideas
-- **Meme Feed** - Submit and upvote memes about bad startup ideas
-- **User Profiles** - Customize your profile with role, bio, and avatar
+- **Feed** - Submit and upvote posts with title and description
+- **User Profiles** - Netflix-style profile pages with idea carousels
+- **Responsive Design** - Works on mobile, tablet, and desktop
 
 ## 📁 Project Structure
 
 ```
 foundrly/
 ├── backend/          # Express.js backend API
-│   ├── models/       # MongoDB models (User, Idea, Match, Swipe, Message, Meme)
-│   ├── routes/       # API routes (auth, users, ideas, matches, chat, ai, memes)
+│   ├── models/       # MongoDB models (User, Idea, Match, Swipe, Message, Meme, Request, Comment)
+│   ├── routes/       # API routes (auth, users, ideas, matches, chat, ai, memes, requests, notifications)
 │   ├── middleware/   # Auth middleware
 │   ├── socket/       # Socket.io handlers
+│   ├── scripts/     # Utility scripts (clearData.js)
 │   ├── server.js     # Express server entry point
 │   └── package.json
 ├── frontend/         # React frontend
 │   ├── src/
-│   │   ├── pages/    # Page components
-│   │   ├── components/ # Reusable components
+│   │   ├── pages/    # Page components (Marketing, Home, SwipePage, Chat, Feed, Profile, Requests)
+│   │   ├── components/ # Reusable components (SwipeDeck, Navbar, RequestMessageModal, Notifications, etc.)
 │   │   ├── contexts/ # React contexts (Auth, Toast)
 │   │   └── api/      # API client
 │   └── package.json
@@ -42,16 +46,17 @@ foundrly/
 - **Express.js** - Node.js web framework
 - **MongoDB** - Database with Mongoose
 - **Socket.io** - Real-time communication
-- **JWT** - Authentication
+- **JWT** - Authentication with bcrypt password hashing
 - **OpenAI/Gemini** - AI idea generation
 
 ### Frontend
 
 - **React** - UI library
 - **Vite** - Build tool
-- **TailwindCSS** - Styling
-- **Framer Motion** - Animations
+- **TailwindCSS** - Styling with Netflix-inspired dark theme
+- **Framer Motion** - Smooth animations
 - **Socket.io Client** - Real-time chat
+- **React Router** - Navigation
 
 ## 📦 Installation
 
@@ -75,20 +80,19 @@ cd backend
 npm install
 ```
 
-3. Create `.env` file (copy from `.env.example`):
+3. Create `.env` file:
 
 ```bash
 PORT=4000
 MONGO_URI=mongodb://localhost:27017/foundrly
-JWT_SECRET=changeme
-SESSION_SECRET=changeme
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
-GITHUB_CLIENT_ID=
-GITHUB_CLIENT_SECRET=
-OPENAI_API_KEY=
-GEMINI_API_KEY=
+JWT_SECRET=changeme_dev_secret_key_12345
+SESSION_SECRET=changeme_dev_session_secret_12345
+GOOGLE_CLIENT_ID=your_google_client_id_here
+GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+OPENAI_API_KEY=your_openai_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
 FRONTEND_URL=http://localhost:3000
+BACKEND_URL=http://localhost:4000
 ```
 
 4. Start MongoDB (if running locally):
@@ -103,16 +107,10 @@ sudo systemctl start mongod
 # Or use MongoDB Atlas (cloud)
 ```
 
-5. Seed the database:
+5. Start the backend:
 
 ```bash
-npm run seed
-```
-
-6. Start the backend:
-
-```bash
-npm run start:dev
+npm run dev
 ```
 
 The backend will run on `http://localhost:4000`
@@ -135,7 +133,6 @@ npm install
 
 ```bash
 VITE_API_BASE_URL=http://localhost:4000/api
-VITE_SOCKET_URL=http://localhost:4000
 ```
 
 4. Start the frontend:
@@ -146,86 +143,142 @@ npm run dev
 
 The frontend will run on `http://localhost:3000`
 
-## 🧪 Testing
+## 🎮 Usage
 
-### Backend Tests
+1. **Sign Up/In**: 
+   - Create an account with email/password
+   - Or sign in with Google OAuth
+   - Or use the mock login for quick testing
 
-```bash
-cd backend
-npm test
-```
+2. **Swipe Ideas**: 
+   - Swipe right (✓) on ideas you like
+   - Swipe left (✕) to pass
+   - When you swipe right on someone else's idea, a modal appears to send a request message
 
-### Frontend Tests
+3. **Send Requests**: 
+   - When you swipe right on an idea, enter a message to the idea creator
+   - The idea creator will see your request on the Requests page
 
-```bash
-cd frontend
-npm test
-```
+4. **Accept Requests**: 
+   - View pending requests on the Requests page
+   - Accept or reject requests
+   - When accepted, you both match and can chat
+
+5. **Chat**: 
+   - Real-time chat with your matches
+   - Split-screen UI: matches list on left, active chat on right
+   - Messages are organized by idea
+
+6. **Notifications**: 
+   - Real-time notifications for incoming requests and messages
+   - Click the bell icon in the navbar to view notifications
+   - Mark individual notifications as read or mark all as read
+   - Only unread notifications are displayed
+
+7. **Feed**: 
+   - Browse memes (randomized order)
+   - Submit memes with title and description
+   - Upvote and comment on memes
+
+8. **Profile**: 
+   - View your profile or other users' profiles
+   - See ideas you've worked on in a carousel
+   - Edit your own profile
 
 ## 🌐 API Endpoints
 
 ### Auth
 
-- `GET /auth/google` - Google OAuth
-- `GET /auth/github` - GitHub OAuth
-- `POST /auth/mock` - Mock login (for local dev)
-- `GET /auth/me` - Get current user
+- `POST /api/auth/register` - Register with email/password
+- `POST /api/auth/login` - Login with email/password
+- `POST /api/auth/mock` - Mock login for quick testing
+- `GET /api/auth/google` - Initiate Google OAuth flow
+- `GET /api/auth/google/callback` - Google OAuth callback handler
+- `GET /api/auth/me` - Get current authenticated user
+
+### Users
+
+- `GET /api/users/me` - Get current user (requires authentication)
+- `GET /api/users/:id` - Get user by ID
+- `PUT /api/users/:id` - Update user (requires authentication, can only update own profile)
 
 ### Ideas
 
-- `GET /api/ideas` - List ideas
+- `GET /api/ideas` - List ideas (excludes user's own and already-swiped if authenticated)
+  - Query params: `trending` (true/false), `limit` (number)
 - `GET /api/ideas/:id` - Get idea by ID
-- `POST /api/ideas` - Submit new idea
+- `GET /api/ideas/user/:userId` - Get all ideas by a specific user
+- `POST /api/ideas` - Submit new idea (requires authentication)
+- `PUT /api/ideas/:id` - Update idea (requires authentication)
+- `DELETE /api/ideas/:id` - Delete idea (requires authentication)
 
-### Matches
+### Swipes & Matches
 
-- `POST /api/match/swipe` - Swipe on an idea (creates matches when: two users like the same idea, or when someone likes your idea)
-- `GET /api/match/matches` - Get user matches
-- `GET /api/match/matches/:id` - Get match by ID
+- `POST /api/match/swipe` - Swipe on an idea (requires authentication)
+  - Body: `{ ideaId, direction: "left" | "right" }`
+  - Returns: `{ needsRequest: true, ideaId }` if idea belongs to someone else, or match data
+- `GET /api/match/matches` - Get user matches with last message and sorting (requires authentication)
+- `GET /api/match/matches/:id` - Get match by ID (requires authentication)
+
+### Requests
+
+- `POST /api/requests` - Create a request (send message to idea creator, requires authentication)
+  - Body: `{ ideaId, message }`
+- `GET /api/requests` - Get requests (received and sent, requires authentication)
+- `POST /api/requests/:id/accept` - Accept request and create match (requires authentication)
+- `POST /api/requests/:id/reject` - Reject request (requires authentication)
+
+### Notifications
+
+- `GET /api/notifications` - Get all unread notifications (requests + messages, requires authentication)
+  - Returns only unread requests (`viewed: false`) and unread messages (`read: false`)
+- `POST /api/notifications/:id/read` - Mark a notification as read (requires authentication)
+  - Body: `{ type: "request" | "message" }`
+- `POST /api/notifications/read-all` - Mark all notifications as read (requires authentication)
+- Socket.io events: `new_request_notification`, `new_message_notification`
 
 ### Chat
 
-- `GET /api/chat/:matchId/messages` - Get chat messages
-- Socket.io events: `join`, `message`, `typing`, `match_notification`
+- `GET /api/chat/:matchId/messages` - Get chat messages for a match (requires authentication)
+- `POST /api/chat/:matchId/messages` - Send message in a match (requires authentication)
+  - Body: `{ content }`
+- `POST /api/chat/:matchId/messages/read` - Mark all messages in a match as read (requires authentication)
+- Socket.io namespace: `/chat`
+- Socket.io events: `join`, `message`, `joined`, `match_notification`
 
 ### Memes
 
-- `GET /api/memes` - List memes
-- `POST /api/memes` - Submit meme
-- `POST /api/memes/:id/upvote` - Upvote meme
+- `GET /api/memes` - List memes (sorted by upvotes, most recent first)
+  - Query params: `limit` (number)
+- `GET /api/memes/:id` - Get meme by ID
+- `POST /api/memes` - Submit meme with title and description (requires authentication)
+- `POST /api/memes/:id/upvote` - Upvote a meme (requires authentication)
+- `GET /api/memes/:id/comments` - Get comments for a meme
+- `POST /api/memes/:id/comments` - Add comment to a meme (requires authentication)
 
 ### AI
 
-- `POST /api/ai/generate` - Generate ideas
-- `POST /api/ai/generate-and-save` - Generate and save ideas
-- `POST /api/ai/pitchpolish` - Polish an idea pitch
+- `POST /api/ai/generate` - Generate ideas using AI (requires authentication and API keys)
+  - Body: `{ count: number }` (default: 5)
+- `POST /api/ai/generate-and-save` - Generate and automatically save ideas (requires authentication and API keys)
+  - Body: `{ count: number }`
+- `POST /api/ai/pitchpolish` - Polish an idea pitch using AI (requires authentication and API keys)
+  - Body: `{ ideaId, pitch }`
 
-## 🐳 Docker
+## 🔧 Scripts
 
-### Backend Dockerfile
+### Backend
 
-```bash
-cd backend
-docker build -t foundrly-backend .
-docker run -p 4000:4000 foundrly-backend
-```
+- `npm start` - Start production server
+- `npm run dev` - Start development server with watch mode
+- `npm run clear-data` - Clear all ideas, matches, swipes, messages, and requests from database
 
-## 🚢 Deployment
+### Frontend
 
-### Backend (Render/Heroku)
-
-1. Set environment variables in your hosting platform
-2. Deploy using the Dockerfile or connect to your Git repo
-3. Ensure MongoDB Atlas is configured
-
-### Frontend (Vercel)
-
-1. Connect your GitHub repo to Vercel
-2. Set build command: `npm run build`
-3. Set output directory: `dist`
-4. Add environment variables:
-   - `VITE_API_BASE_URL` - Your backend URL
-   - `VITE_SOCKET_URL` - Your backend URL
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm test` - Run tests
 
 ## 🔑 Environment Variables
 
@@ -237,27 +290,23 @@ docker run -p 4000:4000 foundrly-backend
 - `SESSION_SECRET` - Session secret
 - `GOOGLE_CLIENT_ID` - Google OAuth client ID
 - `GOOGLE_CLIENT_SECRET` - Google OAuth client secret
-- `GITHUB_CLIENT_ID` - GitHub OAuth client ID
-- `GITHUB_CLIENT_SECRET` - GitHub OAuth client secret
-- `OPENAI_API_KEY` - OpenAI API key (optional, uses mock if not set)
-- `GEMINI_API_KEY` - Google Gemini API key (optional)
+- `OPENAI_API_KEY` - OpenAI API key (required for AI features)
+- `GEMINI_API_KEY` - Google Gemini API key (required for AI features)
 - `FRONTEND_URL` - Frontend URL for CORS
+- `BACKEND_URL` - Backend URL
 
 ### Frontend (.env)
 
-- `VITE_API_BASE_URL` - Backend API URL
-- `VITE_SOCKET_URL` - Socket.io server URL
+- `VITE_API_BASE_URL` - Backend API URL (default: http://localhost:4000/api)
 
-## 🎯 Usage
+## 🎨 Design
 
-1. **Sign In**: Use OAuth or mock login
-2. **Swipe**: Swipe right on ideas you like, left to pass
-3. **Match**:
-   - When two users like the same idea, they match!
-   - When someone likes your idea, you automatically match with them
-4. **Chat**: Real-time chat with your matches
-5. **Feed**: Browse and submit memes
-6. **Profile**: Customize your founder profile and view your submitted ideas
+- **Netflix-inspired dark theme** with red accents
+- **Glassmorphism effects** on cards and modals
+- **Cinematic hero sections** on marketing and profile pages
+- **Smooth animations** with Framer Motion
+- **Responsive design** for all screen sizes
+- **Custom color palette**: Netflix red, dark gradients, card backgrounds
 
 ## 🐛 Troubleshooting
 
@@ -266,21 +315,32 @@ docker run -p 4000:4000 foundrly-backend
 - Ensure MongoDB is running locally or use MongoDB Atlas
 - Check `MONGO_URI` in `.env`
 
-### OAuth Not Working
+### Authentication Issues
 
-- Use mock login for local development
-- Ensure OAuth credentials are set in `.env`
-- Check callback URLs match your setup
+- Clear browser localStorage if tokens are corrupted
+- Check JWT_SECRET is set in backend `.env`
+- Verify password hashing with bcrypt
+
+### Socket.io Not Working
+
+- Check backend console for connection logs
+- Verify token is being sent in Socket.io auth
+- Check browser console for Socket.io errors
+- Ensure backend Socket.io CORS is configured
+
+### Modal Not Appearing
+
+- Check browser console for debug logs
+- Verify `needsRequest: true` in API response
+- Check modal z-index (should be z-[9999])
+- Ensure idea has a `submittedBy` field
 
 ### AI Generation Not Working
 
-- AI features will use mock data if API keys are not set
+- AI features require API keys to be set
 - Set `OPENAI_API_KEY` or `GEMINI_API_KEY` in `.env`
+- Check backend logs for API errors
 
 ## 📝 License
 
 MIT
-
-## 🙏 Acknowledgments
-
-Built for hackathons and bad startup ideas everywhere.

@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import { useState, useEffect, useRef } from 'react';
+import Notifications from './Notifications';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -9,12 +10,76 @@ export default function Navbar() {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef(null);
+  const socketRef = useRef(null);
 
   // Ensure dropdown is closed when user changes or on mount
   useEffect(() => {
     setShowDropdown(false);
+    setShowNotifications(false);
   }, [user?._id, location.pathname]);
+
+  // Load notifications count and setup Socket.io listener
+  useEffect(() => {
+    if (!user?._id) return;
+
+    const loadNotifications = async () => {
+      try {
+        const { api } = await import('../api/api');
+        const response = await api.getNotifications();
+        setUnreadCount(response.data.unreadCount || 0);
+      } catch (error) {
+        console.error('Failed to load notifications:', error);
+      }
+    };
+
+    loadNotifications();
+
+    // Setup Socket.io for real-time notifications
+    const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api';
+    const baseURL = API_URL.replace('/api', '');
+    const token = localStorage.getItem('token');
+
+    let interval = null;
+
+    if (token) {
+      import('socket.io-client').then(({ io }) => {
+        const socket = io(`${baseURL}/chat`, {
+          auth: { token },
+          transports: ['websocket', 'polling'],
+          reconnection: true,
+        });
+
+        socketRef.current = socket;
+
+        // Listen for new notifications
+        socket.on('new_request_notification', () => {
+          loadNotifications();
+        });
+
+        socket.on('new_message_notification', () => {
+          loadNotifications();
+        });
+      });
+    }
+
+    // Refresh every 30 seconds as fallback
+    interval = setInterval(loadNotifications, 30000);
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.off('new_request_notification');
+        socketRef.current.off('new_message_notification');
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [user?._id]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -85,6 +150,44 @@ export default function Navbar() {
             <NavLink to="/feed" isActive={isActive('/feed')}>
               Feed
             </NavLink>
+
+            {/* Notifications Icon */}
+            <div className="relative">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="relative w-10 h-10 flex items-center justify-center text-textGray hover:text-textLight transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                {unreadCount > 0 && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -top-1 -right-1 bg-netflixRed text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
+                  >
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </motion.span>
+                )}
+              </motion.button>
+
+              <Notifications
+                isOpen={showNotifications}
+                onClose={() => {
+                  setShowNotifications(false);
+                }}
+                onNotificationsChange={() => {
+                  // Reload notifications count when notifications change
+                  import('../api/api').then(({ api }) => {
+                    api.getNotifications().then(res => {
+                      setUnreadCount(res.data.unreadCount || 0);
+                    }).catch(console.error);
+                  });
+                }}
+              />
+            </div>
 
             {/* User Avatar & Dropdown */}
             <div className="relative" ref={dropdownRef}>
