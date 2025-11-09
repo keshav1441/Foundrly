@@ -44,4 +44,13 @@ export const api = {
   generateAndSave: (count = 5, userId) =>
     axios.post(`${API_BASE_URL}/ai/generate-and-save`, { count, userId }),
   pitchPolish: (idea) => axios.post(`${API_BASE_URL}/ai/pitchpolish`, { idea }),
+
+  // Requests
+  createRequest: (ideaId, message) =>
+    axios.post(`${API_BASE_URL}/requests`, { ideaId, message }),
+  getRequests: () => axios.get(`${API_BASE_URL}/requests`),
+  acceptRequest: (requestId) =>
+    axios.post(`${API_BASE_URL}/requests/${requestId}/accept`),
+  rejectRequest: (requestId) =>
+    axios.post(`${API_BASE_URL}/requests/${requestId}/reject`),
 };

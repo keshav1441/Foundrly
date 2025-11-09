@@ -6,6 +6,7 @@ import Marketing from './pages/Marketing';
 import Home from './pages/Home';
 import SwipePage from './pages/SwipePage';
 import Matches from './pages/Matches';
+import Requests from './pages/Requests';
 import Chat from './pages/Chat';
 import Feed from './pages/Feed';
 import Profile from './pages/Profile';
@@ -31,6 +32,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Matches />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/requests"
+        element={
+          <ProtectedRoute>
+            <Requests />
           </ProtectedRoute>
         }
       />

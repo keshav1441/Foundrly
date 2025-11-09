@@ -79,6 +79,9 @@ export default function Navbar() {
             <NavLink to="/matches" isActive={isActive('/matches')}>
               Matches
             </NavLink>
+            <NavLink to="/requests" isActive={isActive('/requests')}>
+              Requests
+            </NavLink>
             <NavLink to="/feed" isActive={isActive('/feed')}>
               Feed
             </NavLink>

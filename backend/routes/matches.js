@@ -49,48 +49,11 @@ router.post("/swipe", authenticateJWT, async (req, res) => {
       const idea = await Idea.findById(ideaId);
       let matchCreated = false;
       let populatedMatch = null;
+      let needsRequest = false;
 
-      // If someone likes my idea, create a match with them
+      // If someone likes my idea, they need to send a request (not immediate match)
       if (idea && idea.submittedBy && idea.submittedBy.toString() !== userId) {
-        const ideaSubmitter = idea.submittedBy;
-
-        // Check if match already exists
-        const existingMatch = await Match.findOne({
-          idea: ideaId,
-          $or: [
-            { user1: userId, user2: ideaSubmitter },
-            { user1: ideaSubmitter, user2: userId },
-          ],
-        });
-
-        if (!existingMatch) {
-          // Create a match between the liker and the idea submitter
-          const match = await Match.create({
-            user1: userId,
-            user2: ideaSubmitter,
-            idea: ideaId,
-          });
-
-          // Populate match for notifications
-          populatedMatch = await Match.findById(match._id)
-            .populate("user1", "name avatar")
-            .populate("user2", "name avatar")
-            .populate("idea", "name oneLiner");
-
-          // Notify both users via socket
-          const io = getIO();
-          if (io) {
-            const chatNamespace = io.of("/chat");
-            chatNamespace
-              .to(`user:${userId}`)
-              .emit("match_notification", populatedMatch);
-            chatNamespace
-              .to(`user:${ideaSubmitter.toString()}`)
-              .emit("match_notification", populatedMatch);
-          }
-
-          matchCreated = true;
-        }
+        needsRequest = true;
       }
 
       // Also check if another user already swiped right on this idea (existing logic)
@@ -143,6 +106,11 @@ router.post("/swipe", authenticateJWT, async (req, res) => {
 
       if (matchCreated && populatedMatch) {
         return res.json({ match: populatedMatch });
+      }
+
+      // If swiping right on someone else's idea, indicate that a request is needed
+      if (needsRequest) {
+        return res.json({ needsRequest: true, ideaId });
       }
     }
 

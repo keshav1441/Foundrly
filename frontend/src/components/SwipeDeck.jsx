@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useImperativeHandle, forwardRef } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
 import { api } from '../api/api';
+import RequestMessageModal from './RequestMessageModal';
 
 const SwipeDeck = forwardRef(function SwipeDeck({ onIdeaClick, ...props }, ref) {
   const [ideas, setIdeas] = useState([]);
@@ -10,6 +11,8 @@ const SwipeDeck = forwardRef(function SwipeDeck({ onIdeaClick, ...props }, ref) 
   const [isLaptop, setIsLaptop] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [clickedButton, setClickedButton] = useState(null);
+  const [showRequestModal, setShowRequestModal] = useState(false);
+  const [pendingRequestIdea, setPendingRequestIdea] = useState(null);
   const swipeDirectionRef = useRef(null);
   const exitingCardIdRef = useRef(null);
   const exitingCardDirectionRef = useRef(null);
@@ -90,7 +93,28 @@ const SwipeDeck = forwardRef(function SwipeDeck({ onIdeaClick, ...props }, ref) 
     }
 
     try {
-      await api.swipe(currentIdea._id, direction);
+      const response = await api.swipe(currentIdea._id, direction);
+      
+      // If swiping right on someone else's idea, show request modal
+      if (direction === 'right' && response.data?.needsRequest) {
+        // Card animation already started, let it complete
+        // Then show modal
+        setTimeout(() => {
+          setPendingRequestIdea(currentIdea);
+          setShowRequestModal(true);
+        }, 300);
+        // Continue with normal cleanup
+        setTimeout(() => {
+          setSwipeDirection(null);
+          swipeDirectionRef.current = null;
+          exitingCardIdRef.current = null;
+          exitingCardDirectionRef.current = null;
+          setClickedButton(null);
+          x.set(0);
+        }, 600);
+        return;
+      }
+      
       // Reset after a delay to ensure exit animation has processed
       setTimeout(() => {
         setSwipeDirection(null);
@@ -435,6 +459,28 @@ const SwipeDeck = forwardRef(function SwipeDeck({ onIdeaClick, ...props }, ref) 
           Swipe or tap buttons
         </motion.div>
       )}
+
+      {/* Request Message Modal */}
+      <RequestMessageModal
+        isOpen={showRequestModal}
+        onClose={() => {
+          setShowRequestModal(false);
+          setPendingRequestIdea(null);
+          // Advance to next card after modal closes
+          setTimeout(() => {
+            setSwipeDirection(null);
+            swipeDirectionRef.current = null;
+            exitingCardIdRef.current = null;
+            exitingCardDirectionRef.current = null;
+            setClickedButton(null);
+            x.set(0);
+          }, 100);
+        }}
+        idea={pendingRequestIdea}
+        onRequestSent={() => {
+          // Card already swiped, just need to clean up
+        }}
+      />
     </div>
   );
 });
