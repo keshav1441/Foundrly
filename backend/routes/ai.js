@@ -1,185 +1,230 @@
-import express from 'express';
-import OpenAI from 'openai';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import Idea from '../models/Idea.js';
-import { authenticateJWT } from '../middleware/auth.js';
+import express from "express";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import Idea from "../models/Idea.js";
+import { authenticateJWT } from "../middleware/auth.js";
 
 const router = express.Router();
 
-let openai = null;
 let gemini = null;
 
-if (process.env.OPENAI_API_KEY) {
-  openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-}
+// Initialize AI services (lazy initialization)
+function initializeAIServices() {
+  // Skip if already initialized
+  if (gemini) {
+    return;
+  }
 
-if (process.env.GEMINI_API_KEY) {
-  gemini = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+  // Debug: Check if env vars are loaded
+  const hasGemini = !!process.env.GEMINI_API_KEY;
+
+  if (hasGemini) {
+    gemini = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    console.log("✅ Gemini initialized");
+  } else {
+    console.log("⚠️  GEMINI_API_KEY not found in environment");
+    console.log("   Current working directory:", process.cwd());
+    console.log(
+      "   GEMINI_API_KEY value:",
+      process.env.GEMINI_API_KEY ? "Found" : "Not found"
+    );
+  }
 }
 
 // Generate ideas
-router.post('/generate', authenticateJWT, async (req, res) => {
+router.post("/generate", authenticateJWT, async (req, res) => {
   try {
     const { count = 5 } = req.body;
-    const ideas = await generateIdeas(count);
+    const ideas = [];
+
+    // Generate ideas one at a time
+    for (let i = 0; i < count; i++) {
+      const ideaArray = await generateIdeas(1);
+      ideas.push(ideaArray[0]);
+    }
+
     res.json({ ideas });
   } catch (error) {
-    console.error('Generate ideas error:', error);
-    res.status(500).json({ error: 'Failed to generate ideas' });
+    console.error("Generate ideas error:", error);
+    res.status(500).json({ error: "Failed to generate ideas" });
   }
 });
 
-// Generate and save ideas
-router.post('/generate-and-save', authenticateJWT, async (req, res) => {
+// Generate ideas as editable templates (returns ideas for user to edit before saving)
+router.post("/generate-and-save", authenticateJWT, async (req, res) => {
   try {
-    const { count = 5, userId } = req.body;
-    const ideas = await generateIdeas(count);
-    const savedIdeas = [];
+    const { count = 1 } = req.body;
+    const generatedIdeas = [];
 
-    for (const ideaText of ideas) {
-      const [name, ...oneLinerParts] = ideaText.split(':');
-      const oneLiner = oneLinerParts.join(':').trim() || ideaText;
-
-      const idea = await Idea.create({
-        name: name.trim(),
-        oneLiner,
-        tags: ['ai-generated'],
-        submittedBy: userId || req.user.sub,
-      });
-
-      await idea.populate('submittedBy', 'name avatar');
-      savedIdeas.push(idea);
+    // Generate ideas one at a time
+    for (let i = 0; i < count; i++) {
+      try {
+        const ideaData = await generateCompleteIdea();
+        generatedIdeas.push(ideaData);
+      } catch (ideaError) {
+        console.error(`Error generating idea ${i + 1}:`, ideaError);
+        // Continue with next idea instead of failing completely
+      }
     }
 
-    res.json({ ideas: savedIdeas });
+    if (generatedIdeas.length === 0) {
+      return res.status(500).json({
+        error:
+          "Failed to generate any ideas. Please check your GEMINI_API_KEY configuration.",
+      });
+    }
+
+    res.json({ ideas: generatedIdeas });
   } catch (error) {
-    console.error('Generate and save ideas error:', error);
-    res.status(500).json({ error: 'Failed to generate and save ideas' });
+    console.error("Generate ideas error:", error);
+    res.status(500).json({
+      error:
+        error.message ||
+        "Failed to generate ideas. Please check your GEMINI_API_KEY configuration.",
+    });
   }
 });
 
 // Polish pitch
-router.post('/pitchpolish', authenticateJWT, async (req, res) => {
+router.post("/pitchpolish", authenticateJWT, async (req, res) => {
   try {
     const { idea } = req.body;
     const polished = await pitchPolish(idea);
     res.json({ polished });
   } catch (error) {
-    console.error('Pitch polish error:', error);
-    res.status(500).json({ error: 'Failed to polish pitch' });
+    console.error("Pitch polish error:", error);
+    res.status(500).json({ error: "Failed to polish pitch" });
   }
 });
 
 async function generateIdeas(count = 5) {
-  if (openai) {
-    try {
-      const response = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          {
-            role: 'system',
-            content:
-              'You are a startup idea generator that creates hilariously bad startup ideas. Generate ideas in the format: "Idea Name: One-liner description". Return each idea on a new line.',
-          },
-          {
-            role: 'user',
-            content: `Generate ${count} hilariously bad startup ideas. Make them absurd, funny, and clearly terrible business ideas.`,
-          },
-        ],
-        temperature: 1.2,
-      });
-
-      const ideas = response.choices[0].message.content
-        .split('\n')
-        .filter((line) => line.trim())
-        .map((line) => line.replace(/^\d+\.\s*/, '').trim())
-        .slice(0, count);
-
-      return ideas;
-    } catch (error) {
-      console.error('OpenAI error:', error);
-    }
-  }
+  // Initialize if not already done (lazy initialization)
+  initializeAIServices();
 
   if (gemini) {
     try {
-      const model = gemini.getGenerativeModel({ model: 'gemini-pro' });
-      const prompt = `Generate ${count} hilariously bad startup ideas. Format: "Idea Name: One-liner description". One per line.`;
+      const model = gemini.getGenerativeModel({
+        model: "gemini-2.5-flash",
+      });
+      // Generate one idea at a time
+      const prompt = `You are a startup idea generator that creates hilariously bad startup ideas. Generate 1 hilariously bad startup idea. Make it absurd, funny, and clearly a terrible business idea. Format as: "Idea Name: One-liner description". Return only the idea, no numbering or extra text.`;
 
       const result = await model.generateContent(prompt);
       const response = await result.response;
-      const text = response.text();
+      const text = response.text().trim();
 
-      const ideas = text
-        .split('\n')
-        .filter((line) => line.trim())
-        .map((line) => line.replace(/^\d+\.\s*/, '').trim())
-        .slice(0, count);
+      // Clean up the response
+      const cleanedText = text
+        .replace(/^\d+\.\s*/, "")
+        .replace(/^[-*]\s*/, "")
+        .trim();
 
-      return ideas;
+      return [cleanedText];
     } catch (error) {
-      console.error('Gemini error:', error);
+      console.error("Gemini error:", error);
+      throw error;
     }
   }
 
-  // Fallback to mock ideas
-  const mockIdeas = [
-    'CryptoChores: Blockchain-based chore tracking for kids',
-    'Rent-a-Plant: Subscription service for fake plants',
-    'DogTweet: Social network exclusively for dogs',
-    'UberForPotholes: Crowdsourced pothole filling service',
-    'NFT-Toaster: Non-fungible toast art marketplace',
-    'Coffee-as-a-Service: Monthly subscription for instant coffee',
-    'Rent-a-Friend-for-Meetings: Hire actors to attend your Zoom calls',
-    'SmartSocks: IoT socks that tweet your step count',
-    'MemeStockAdvisor: AI that picks stocks based on memes',
-    'GhostChef: Meal delivery from restaurants that closed',
-  ];
-
-  return mockIdeas.slice(0, count);
+  // If Gemini is not available, throw an error
+  throw new Error(
+    "No AI service available. Please configure GEMINI_API_KEY in your .env file."
+  );
 }
 
-async function pitchPolish(idea) {
-  if (openai) {
-    try {
-      const response = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          {
-            role: 'system',
-            content:
-              'You are a fake VC pitch writer. Take a bad startup idea and rewrite it as a serious-sounding pitch deck summary. Make it sound professional but keep the absurdity. Format as a 2-3 sentence pitch.',
-          },
-          {
-            role: 'user',
-            content: `Rewrite this startup idea as a fake VC pitch: ${idea}`,
-          },
-        ],
-        temperature: 0.8,
-      });
-
-      return response.choices[0].message.content;
-    } catch (error) {
-      console.error('OpenAI error:', error);
-    }
-  }
+async function generateCompleteIdea() {
+  // Initialize if not already done (lazy initialization)
+  initializeAIServices();
 
   if (gemini) {
     try {
-      const model = gemini.getGenerativeModel({ model: 'gemini-pro' });
+      const model = gemini.getGenerativeModel({
+        model: "gemini-2.5-flash",
+      });
+      const prompt = `You are a startup idea generator that creates hilariously bad startup ideas. Generate 1 hilariously bad startup idea with the following format:
+
+Title: [Idea Name]
+Description: [One-liner description]
+Tags: [tag1, tag2, tag3, tag4]
+
+Make the idea absurd, funny, and clearly a terrible business idea. Generate 2-4 relevant tags that are short, descriptive keywords. Return only the formatted response with Title, Description, and Tags sections.`;
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      const text = response.text().trim();
+
+      // Parse the structured response
+      const titleMatch = text.match(/Title:\s*(.+?)(?:\n|$)/i);
+      const descriptionMatch = text.match(
+        /Description:\s*(.+?)(?:\n|Tags:|$)/is
+      );
+      const tagsMatch = text.match(/Tags:\s*(.+?)(?:\n|$)/i);
+
+      const name = titleMatch ? titleMatch[1].trim() : "Untitled Idea";
+      const oneLiner = descriptionMatch ? descriptionMatch[1].trim() : "";
+
+      // Parse tags
+      let tags = [];
+      if (tagsMatch) {
+        tags = tagsMatch[1]
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter((tag) => tag.length > 0)
+          .slice(0, 4);
+      }
+
+      // Fallback: if parsing fails, try to extract from the original format
+      if (!name || !oneLiner) {
+        const fallbackMatch = text.match(/^(.+?):\s*(.+?)(?:\n|Tags:|$)/s);
+        if (fallbackMatch) {
+          return {
+            name: fallbackMatch[1].trim() || "Untitled Idea",
+            oneLiner: fallbackMatch[2].trim(),
+            tags: tags.length > 0 ? tags : [],
+          };
+        }
+      }
+
+      return {
+        name: name || "Untitled Idea",
+        oneLiner: oneLiner || "",
+        tags: tags,
+      };
+    } catch (error) {
+      console.error("Gemini error:", error);
+      throw error;
+    }
+  }
+
+  // If Gemini is not available, throw an error
+  throw new Error(
+    "No AI service available. Please configure GEMINI_API_KEY in your .env file."
+  );
+}
+
+async function pitchPolish(idea) {
+  // Initialize if not already done (lazy initialization)
+  initializeAIServices();
+
+  if (gemini) {
+    try {
+      const model = gemini.getGenerativeModel({
+        model: "gemini-2.5-flash",
+      });
       const prompt = `Rewrite this bad startup idea as a fake VC pitch (2-3 sentences, professional but absurd): ${idea}`;
 
       const result = await model.generateContent(prompt);
       const response = await result.response;
       return response.text();
     } catch (error) {
-      console.error('Gemini error:', error);
+      console.error("Gemini error:", error);
+      throw error;
     }
   }
 
-  // Fallback mock pitch
-  return `We're revolutionizing the ${idea} space with cutting-edge technology and a scalable business model. Our platform leverages AI and blockchain to create unprecedented value for stakeholders. Join us in disrupting this $10B market.`;
+  // If Gemini is not available, throw an error
+  throw new Error(
+    "No AI service available. Please configure GEMINI_API_KEY in your .env file."
+  );
 }
 
 export default router;
-

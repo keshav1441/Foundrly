@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../api/api';
+import IdeaDetailModal from '../components/IdeaDetailModal';
 
 export default function Profile() {
   const { userId } = useParams();
@@ -12,6 +13,8 @@ export default function Profile() {
   const [ideas, setIdeas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
+  const [isIdeaModalOpen, setIsIdeaModalOpen] = useState(false);
+  const [selectedIdea, setSelectedIdea] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     bio: '',
@@ -247,6 +250,10 @@ export default function Profile() {
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.05 }}
                   whileHover={{ scale: 1.05, y: -10 }}
+                  onClick={() => {
+                    setSelectedIdea(idea);
+                    setIsIdeaModalOpen(true);
+                  }}
                   className="flex-shrink-0 w-80 cursor-pointer group"
                 >
                   <div className="bg-darkBg/50 backdrop-blur-xl rounded-lg overflow-hidden border border-gray-900 hover:border-gray-800 transition-all">
@@ -267,22 +274,27 @@ export default function Profile() {
                       <p className="text-textGray text-sm mb-3 line-clamp-2 font-light">
                         {idea.oneLiner}
                       </p>
-                      <div className="flex items-center justify-between text-xs text-textGray font-light">
-                        <div className="flex items-center gap-3">
-                          <div className="flex items-center gap-1">
-                            <div className="w-2 h-2 bg-green-500 rounded-full" />
-                            <span>{idea.swipeRightCount || 0}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <div className="w-2 h-2 bg-red-500 rounded-full" />
-                            <span>{idea.swipeLeftCount || 0}</span>
-                          </div>
+                      {idea.tags && idea.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-3">
+                          {idea.tags.map((tag, index) => (
+                            <span
+                              key={index}
+                              className="px-2 py-1 bg-black/50 border border-gray-800 rounded text-textGray text-xs"
+                            >
+                              {tag}
+                            </span>
+                          ))}
                         </div>
-                        {idea.tags?.[0] && (
-                          <span className="px-2 py-1 bg-black/50 border border-gray-800 rounded text-textGray">
-                            {idea.tags[0]}
-                          </span>
-                        )}
+                      )}
+                      <div className="flex items-center gap-3 text-xs text-textGray font-light">
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-2 bg-green-500 rounded-full" />
+                          <span>{idea.swipeRightCount || 0}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-2 h-2 bg-red-500 rounded-full" />
+                          <span>{idea.swipeLeftCount || 0}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -374,6 +386,20 @@ export default function Profile() {
           </motion.div>
         </motion.div>
       )}
+
+      {/* Idea Detail Modal */}
+      <IdeaDetailModal
+        isOpen={isIdeaModalOpen}
+        onClose={() => {
+          setIsIdeaModalOpen(false);
+          setSelectedIdea(null);
+        }}
+        idea={selectedIdea}
+        canEdit={isOwnProfile}
+        onUpdate={() => {
+          loadProfile();
+        }}
+      />
     </div>
   );
 }

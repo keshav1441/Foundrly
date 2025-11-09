@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useImperativeHandle, forwardRef } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
 import { api } from '../api/api';
 
-export default function SwipeDeck() {
+const SwipeDeck = forwardRef(function SwipeDeck({ onIdeaClick, ...props }, ref) {
   const [ideas, setIdeas] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -36,14 +36,28 @@ export default function SwipeDeck() {
 
   const loadIdeas = async () => {
     try {
+      setLoading(true);
       const response = await api.getIdeas();
       setIdeas(response.data);
+      setCurrentIndex(0); // Reset to first card when reloading
+      // Reset swipe-related state
+      setSwipeDirection(null);
+      swipeDirectionRef.current = null;
+      exitingCardIdRef.current = null;
+      exitingCardDirectionRef.current = null;
+      setClickedButton(null);
+      x.set(0);
     } catch (error) {
       console.error('Failed to load ideas:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  // Expose reload function to parent component
+  useImperativeHandle(ref, () => ({
+    reloadIdeas: loadIdeas
+  }));
 
   const handleSwipe = useCallback(async (direction, isDragSwipe = false) => {
     if (currentIndex >= ideas.length) return;
@@ -249,7 +263,13 @@ export default function SwipeDeck() {
               {/* Card Content */}
               <motion.div
                 whileHover={isLaptop ? { y: -5 } : {}}
-                className="bg-darkBg/50 backdrop-blur-xl rounded-lg overflow-hidden border border-gray-900 h-full flex flex-col"
+                onClick={(e) => {
+                  // Only trigger click if not dragging and not clicking on swipe buttons
+                  if (!isDragging && !clickedButton && e.target.closest('button') === null) {
+                    onIdeaClick?.(currentIdea);
+                  }
+                }}
+                className="bg-darkBg/50 backdrop-blur-xl rounded-lg overflow-hidden border border-gray-900 h-full flex flex-col cursor-pointer"
               >
                 {/* Header Section */}
                 <div className="relative flex-1 min-h-[200px] bg-gradient-to-br from-black via-darkBg to-black flex items-center justify-center overflow-hidden">
@@ -263,16 +283,23 @@ export default function SwipeDeck() {
                     >
                       {currentIdea.name}
                     </motion.h2>
-                    {currentIdea.tags?.[0] && (
+                    {currentIdea.tags && currentIdea.tags.length > 0 && (
                       <motion.div
                         initial={{ y: 10, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2 }}
-                        className="inline-block px-4 py-1.5 bg-netflixRed/20 backdrop-blur-sm rounded-md border border-netflixRed/30"
+                        className="flex flex-wrap items-center justify-center gap-2"
                       >
-                        <span className="text-xs font-medium text-textLight uppercase tracking-wider">
-                          {currentIdea.tags[0]}
-                        </span>
+                        {currentIdea.tags.map((tag, index) => (
+                          <span
+                            key={index}
+                            className="inline-block px-3 py-1.5 bg-netflixRed/20 backdrop-blur-sm rounded-md border border-netflixRed/30"
+                          >
+                            <span className="text-xs font-medium text-textLight uppercase tracking-wider">
+                              {tag}
+                            </span>
+                          </span>
+                        ))}
                       </motion.div>
                     )}
                   </div>
@@ -331,28 +358,26 @@ export default function SwipeDeck() {
                     </p>
                   )}
 
-                  {currentIdea.tags && currentIdea.tags.length > 1 && (
-                    <div className="flex flex-wrap gap-2 mb-4 md:mb-6">
-                      {currentIdea.tags.slice(1).map((tag, index) => (
-                        <span
-                          key={index}
-                          className="px-3 py-1 bg-black/50 border border-gray-800 rounded-md text-textGray text-xs font-light"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
 
-                  <div className="flex items-center gap-6 text-sm text-textGray font-light">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full" />
-                      <span>{currentIdea.swipeRightCount || 0} likes</span>
+                  <div className="flex items-center justify-between text-sm text-textGray font-light">
+                    <div className="flex items-center gap-6">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-green-500 rounded-full" />
+                        <span>{currentIdea.swipeRightCount || 0} likes</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-red-500 rounded-full" />
+                        <span>{currentIdea.swipeLeftCount || 0} passes</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-red-500 rounded-full" />
-                      <span>{currentIdea.swipeLeftCount || 0} passes</span>
-                    </div>
+                    {currentIdea.submittedBy && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-textGray/60">by</span>
+                        <span className="text-textLight font-medium">
+                          {currentIdea.submittedBy.name || 'Anonymous'}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </motion.div>
@@ -412,4 +437,6 @@ export default function SwipeDeck() {
       )}
     </div>
   );
-}
+});
+
+export default SwipeDeck;
