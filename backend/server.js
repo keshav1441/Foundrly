@@ -60,6 +60,9 @@ setupSocketIO(io);
 import('./routes/matches.js').then((module) => {
   module.setIO(io);
 });
+import('./routes/chat.js').then((module) => {
+  module.setIO(io);
+});
 
 // Connect to MongoDB
 mongoose

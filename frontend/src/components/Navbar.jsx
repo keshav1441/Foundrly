@@ -11,6 +11,11 @@ export default function Navbar() {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
+  // Ensure dropdown is closed when user changes or on mount
+  useEffect(() => {
+    setShowDropdown(false);
+  }, [user?._id, location.pathname]);
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
@@ -26,9 +31,11 @@ export default function Navbar() {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    if (showDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showDropdown]);
 
   // Don't show navbar on marketing, login page or auth callback
   if (location.pathname === '/' || location.pathname === '/login' || location.pathname === '/auth/callback') {

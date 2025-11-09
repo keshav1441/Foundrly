@@ -5,10 +5,12 @@ import { useAuth } from '../contexts/AuthContext';
 
 export default function Home() {
   const navigate = useNavigate();
-  const { user, mockLogin, loading } = useAuth();
-  const [mockEmail, setMockEmail] = useState('');
-  const [mockName, setMockName] = useState('');
-  const [showMockForm, setShowMockForm] = useState(false);
+  const { user, emailLogin, register, loading } = useAuth();
+  const [isSignup, setIsSignup] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [error, setError] = useState('');
 
   // Redirect to swipe if already logged in
   useEffect(() => {
@@ -26,13 +28,24 @@ export default function Home() {
     window.location.href = `/api/auth/${provider}`;
   };
 
-  const handleMockLogin = async (e) => {
+  const handleEmailAuth = async (e) => {
     e.preventDefault();
+    setError('');
+    
     try {
-      await mockLogin(mockEmail || 'test@foundrly.com', mockName || 'Test User');
+      if (isSignup) {
+        if (!name.trim()) {
+          setError('Name is required');
+          return;
+        }
+        await register(email, password, name);
+      } else {
+        await emailLogin(email, password);
+      }
+      // Navigate after user state is set
       navigate('/swipe');
     } catch (error) {
-      alert('Login failed. Please try again.');
+      setError(error.response?.data?.error || 'Authentication failed. Please try again.');
     }
   };
 
@@ -118,73 +131,81 @@ export default function Home() {
               Continue with Google
             </motion.button>
 
-            {/* GitHub Login */}
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => handleOAuthLogin('github')}
-              className="w-full bg-darkBg text-white py-3.5 px-4 rounded-md font-medium hover:bg-cardBg transition flex items-center justify-center gap-3 border border-gray-800"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-              </svg>
-              Continue with GitHub
-            </motion.button>
-
             {/* Divider */}
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-800"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-3 bg-darkBg/50 text-textGray font-light">or continue with</span>
+                <span className="px-3 bg-darkBg/50 text-textGray font-light">or continue with email</span>
               </div>
             </div>
 
-            {/* Mock Login Button */}
-            {!showMockForm && (
+            {/* Email/Password Auth Form */}
+            <motion.form
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              onSubmit={handleEmailAuth}
+              className="space-y-4"
+            >
+              {isSignup && (
+                <input
+                  type="text"
+                  placeholder="Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className="w-full bg-black border border-gray-800 rounded-md px-4 py-3.5 text-textLight focus:outline-none focus:border-netflixRed/50 transition font-light"
+                />
+              )}
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full bg-black border border-gray-800 rounded-md px-4 py-3.5 text-textLight focus:outline-none focus:border-netflixRed/50 transition font-light"
+              />
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+                className="w-full bg-black border border-gray-800 rounded-md px-4 py-3.5 text-textLight focus:outline-none focus:border-netflixRed/50 transition font-light"
+              />
+              
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-red-400 text-sm text-center font-light"
+                >
+                  {error}
+                </motion.div>
+              )}
+
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => setShowMockForm(true)}
-                className="w-full bg-netflixRed/10 text-textLight py-3.5 px-4 rounded-md font-medium hover:bg-netflixRed/20 transition border border-netflixRed/30"
+                type="submit"
+                className="w-full bg-netflixRed text-white py-3.5 px-4 rounded-md font-medium hover:bg-netflixRed/90 transition"
               >
-                Demo Login
+                {isSignup ? 'Sign Up' : 'Sign In'}
               </motion.button>
-            )}
 
-            {/* Mock Login Form */}
-            {showMockForm && (
-              <motion.form
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                onSubmit={handleMockLogin}
-                className="space-y-3"
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSignup(!isSignup);
+                  setError('');
+                }}
+                className="w-full text-textGray hover:text-netflixRed text-sm transition font-light"
               >
-                <input
-                  type="email"
-                  placeholder="Email (optional)"
-                  value={mockEmail}
-                  onChange={(e) => setMockEmail(e.target.value)}
-                  className="w-full bg-black border border-gray-800 rounded-md px-4 py-3 text-textLight focus:outline-none focus:border-netflixRed/50 transition font-light"
-                />
-                <input
-                  type="text"
-                  placeholder="Name (optional)"
-                  value={mockName}
-                  onChange={(e) => setMockName(e.target.value)}
-                  className="w-full bg-black border border-gray-800 rounded-md px-4 py-3 text-textLight focus:outline-none focus:border-netflixRed/50 transition font-light"
-                />
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  type="submit"
-                  className="w-full bg-netflixRed text-white py-3.5 px-4 rounded-md font-medium hover:bg-netflixRed/90 transition"
-                >
-                  Login
-                </motion.button>
-              </motion.form>
-            )}
+                {isSignup ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
+              </button>
+            </motion.form>
           </div>
         </motion.div>
 

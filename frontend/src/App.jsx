@@ -34,7 +34,7 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/chat/:matchId"
+        path="/chat/:matchId?"
         element={
           <ProtectedRoute>
             <Chat />

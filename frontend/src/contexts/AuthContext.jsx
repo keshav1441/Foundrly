@@ -69,6 +69,55 @@ export function AuthProvider({ children }) {
     delete axios.defaults.headers.common['Authorization'];
   };
 
+  const register = async (email, password, name) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/auth/register`, {
+        email,
+        password,
+        name,
+      });
+      
+      // Set token and user directly from response
+      const token = response.data.access_token;
+      const userData = response.data.user;
+      
+      setToken(token);
+      setUser(userData);
+      localStorage.setItem('token', token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      setLoading(false);
+      
+      return response.data;
+    } catch (error) {
+      console.error("Registration failed:", error);
+      throw error;
+    }
+  };
+
+  const emailLogin = async (email, password) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+        email,
+        password,
+      });
+      
+      // Set token and user directly from response
+      const token = response.data.access_token;
+      const userData = response.data.user;
+      
+      setToken(token);
+      setUser(userData);
+      localStorage.setItem('token', token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      setLoading(false);
+      
+      return response.data;
+    } catch (error) {
+      console.error("Email login failed:", error);
+      throw error;
+    }
+  };
+
   const mockLogin = async (email, name) => {
     try {
       const response = await axios.post(`${API_BASE_URL}/auth/mock`, { email, name });
@@ -86,6 +135,8 @@ export function AuthProvider({ children }) {
     loading,
     login,
     logout,
+    register,
+    emailLogin,
     mockLogin,
     fetchUser,
   };

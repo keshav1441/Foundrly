@@ -1,6 +1,7 @@
 import express from "express";
 import axios from "axios";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 import User from "../models/User.js";
 
 const router = express.Router();
@@ -128,112 +129,86 @@ router.get("/google/callback", async (req, res) => {
   }
 });
 
-// GitHub OAuth
-router.get("/github", (req, res) => {
-  const clientID = process.env.GITHUB_CLIENT_ID;
-  const redirectURI = `${
-    process.env.BACKEND_URL || "http://localhost:4000"
-  }/auth/github/callback`;
-
-  if (!clientID || clientID === "mock") {
-    return res.status(400).json({ error: "GitHub OAuth not configured" });
-  }
-
-  const authURL =
-    `https://github.com/login/oauth/authorize?` +
-    `client_id=${clientID}&` +
-    `redirect_uri=${encodeURIComponent(redirectURI)}&` +
-    `scope=user:email`;
-
-  console.log("GitHub OAuth - Redirecting to:", authURL);
-  res.redirect(authURL);
-});
-
-router.get("/github/callback", async (req, res) => {
+// Register/Signup endpoint
+router.post("/register", async (req, res) => {
   try {
-    const { code } = req.query;
-    if (!code) {
-      return res.redirect(
-        `${process.env.FRONTEND_URL || "http://localhost:3000"}?error=no_code`
-      );
+    const { email, password, name } = req.body;
+
+    // Validation
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password are required" });
     }
 
-    const clientID = process.env.GITHUB_CLIENT_ID;
-    const clientSecret = process.env.GITHUB_CLIENT_SECRET;
-    const redirectURI = `${
-      process.env.BACKEND_URL || "http://localhost:4000"
-    }/api/auth/github/callback`;
-
-    if (
-      !clientID ||
-      !clientSecret ||
-      clientID === "mock" ||
-      clientSecret === "mock"
-    ) {
-      return res.redirect(
-        `${
-          process.env.FRONTEND_URL || "http://localhost:3000"
-        }?error=oauth_not_configured`
-      );
+    if (password.length < 6) {
+      return res.status(400).json({ error: "Password must be at least 6 characters" });
     }
 
-    // Exchange code for access token
-    const tokenResponse = await axios.post(
-      "https://github.com/login/oauth/access_token",
-      {
-        client_id: clientID,
-        client_secret: clientSecret,
-        code,
-        redirect_uri: redirectURI,
-      },
-      {
-        headers: {
-          Accept: "application/json",
-        },
-      }
-    );
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: "User with this email already exists" });
+    }
 
-    const { access_token } = tokenResponse.data;
+    // Hash password
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Get user info from GitHub
-    const userResponse = await axios.get("https://api.github.com/user", {
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-      },
+    // Create user
+    const user = await User.create({
+      email,
+      password: hashedPassword,
+      name: name || email.split("@")[0],
+      avatar: "",
     });
 
-    // Get user email
-    const emailResponse = await axios.get(
-      "https://api.github.com/user/emails",
-      {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
-      }
+    // Generate JWT token
+    const token = jwt.sign(
+      { email: user.email, sub: user._id.toString() },
+      process.env.JWT_SECRET || "changeme",
+      { expiresIn: "7d" }
     );
 
-    const primaryEmail =
-      emailResponse.data.find((e) => e.primary) || emailResponse.data[0];
-    const email =
-      primaryEmail?.email || userResponse.data.login + "@github.local";
-    const { login, name, avatar_url, id } = userResponse.data;
+    // Remove password from response
+    const userResponse = user.toObject();
+    delete userResponse.password;
 
-    // Find or create user
-    let user = await User.findOne({ email });
+    res.status(201).json({ access_token: token, user: userResponse });
+  } catch (error) {
+    console.error("Register error:", error);
+    if (error.code === 11000) {
+      return res.status(400).json({ error: "User with this email already exists" });
+    }
+    res.status(500).json({ error: "Registration failed" });
+  }
+});
+
+// Login endpoint (email/password)
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Validation
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password are required" });
+    }
+
+    // Find user with password field
+    const user = await User.findOne({ email }).select("+password");
     if (!user) {
-      user = await User.create({
-        email,
-        name: name || login,
-        avatar: avatar_url || "",
-        githubId: id.toString(),
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    // Check if user has a password (not OAuth-only user)
+    if (!user.password) {
+      return res.status(401).json({
+        error: "This account was created with OAuth. Please use Google to sign in.",
       });
-    } else {
-      if (!user.githubId) {
-        user.githubId = id.toString();
-      }
-      if (name || login) user.name = name || login;
-      if (avatar_url) user.avatar = avatar_url;
-      await user.save();
+    }
+
+    // Verify password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: "Invalid email or password" });
     }
 
     // Generate JWT token
@@ -243,15 +218,14 @@ router.get("/github/callback", async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
-    const redirectUrl = `${frontendUrl}/auth/callback?token=${encodeURIComponent(
-      token
-    )}`;
-    res.redirect(redirectUrl);
+    // Remove password from response
+    const userResponse = user.toObject();
+    delete userResponse.password;
+
+    res.json({ access_token: token, user: userResponse });
   } catch (error) {
-    console.error("GitHub OAuth callback error:", error);
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
-    res.redirect(`${frontendUrl}?error=login_failed`);
+    console.error("Login error:", error);
+    res.status(500).json({ error: "Login failed" });
   }
 });
 

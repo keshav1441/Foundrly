@@ -2,6 +2,7 @@ import express from 'express';
 import Match from '../models/Match.js';
 import Swipe from '../models/Swipe.js';
 import Idea from '../models/Idea.js';
+import Message from '../models/Message.js';
 import { authenticateJWT } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -96,7 +97,31 @@ router.get('/matches', authenticateJWT, async (req, res) => {
       .populate('idea', 'name oneLiner')
       .sort({ createdAt: -1 });
 
-    res.json(matches);
+    // Get last message for each match
+    const matchesWithLastMessage = await Promise.all(
+      matches.map(async (match) => {
+        const lastMessage = await Message.findOne({ match: match._id })
+          .populate('sender', 'name avatar')
+          .sort({ createdAt: -1 })
+          .limit(1)
+          .lean();
+        
+        const matchObj = match.toObject();
+        matchObj.lastMessage = lastMessage || null;
+        // Add a sort timestamp for ordering (use last message time or match creation time)
+        matchObj.sortTimestamp = lastMessage?.createdAt || match.createdAt;
+        return matchObj;
+      })
+    );
+
+    // Sort by last message time (most recent first), then by match creation time for matches without messages
+    matchesWithLastMessage.sort((a, b) => {
+      const timeA = new Date(a.sortTimestamp).getTime();
+      const timeB = new Date(b.sortTimestamp).getTime();
+      return timeB - timeA; // Most recent first
+    });
+
+    res.json(matchesWithLastMessage);
   } catch (error) {
     console.error('Get matches error:', error);
     res.status(500).json({ error: 'Failed to get matches' });

@@ -3,6 +3,11 @@ import Message from '../models/Message.js';
 import { authenticateJWT } from '../middleware/auth.js';
 
 const router = express.Router();
+let ioInstance = null;
+
+export function setIO(io) {
+  ioInstance = io;
+}
 
 // Get messages for a match
 router.get('/:matchId/messages', authenticateJWT, async (req, res) => {
@@ -16,6 +21,43 @@ router.get('/:matchId/messages', authenticateJWT, async (req, res) => {
   } catch (error) {
     console.error('Get messages error:', error);
     res.status(500).json({ error: 'Failed to get messages' });
+  }
+});
+
+// Send a message
+router.post('/:matchId/messages', authenticateJWT, async (req, res) => {
+  try {
+    const { matchId } = req.params;
+    const { content } = req.body;
+    const userId = req.user.sub;
+
+    if (!content || !content.trim()) {
+      return res.status(400).json({ error: 'Message content is required' });
+    }
+
+    const message = await Message.create({
+      match: matchId,
+      sender: userId,
+      content: content.trim(),
+    });
+
+    const populatedMessage = await Message.findById(message._id)
+      .populate('sender', 'name avatar');
+
+    // Emit to Socket.io if available
+    if (ioInstance) {
+      try {
+        const chatNamespace = ioInstance.of('/chat');
+        chatNamespace.to(`match:${matchId}`).emit('message', populatedMessage);
+      } catch (error) {
+        console.error('Socket.io emit error:', error);
+      }
+    }
+
+    res.status(201).json(populatedMessage);
+  } catch (error) {
+    console.error('Send message error:', error);
+    res.status(500).json({ error: 'Failed to send message' });
   }
 });
 

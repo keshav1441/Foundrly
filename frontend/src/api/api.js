@@ -16,6 +16,7 @@ export const api = {
 
   // Chat
   getMessages: (matchId) => axios.get(`${API_BASE_URL}/chat/${matchId}/messages`),
+  sendMessage: (matchId, content) => axios.post(`${API_BASE_URL}/chat/${matchId}/messages`, { content }),
 
   // Memes
   getMemes: (params = {}) => axios.get(`${API_BASE_URL}/memes`, { params }),

@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 const userSchema = new mongoose.Schema(
   {
     email: { type: String, required: true, unique: true },
+    password: { type: String, select: false }, // Don't return password by default
     name: String,
     avatar: String,
     role: {
