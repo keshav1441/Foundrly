@@ -1,5 +1,7 @@
 # Foundrly
 
+Live Url: https://foundrly-pearl.vercel.app/
+
 **Swipe Right on Bad Startup Ideas**
 
 Foundrly is a Tinder-inspired swipe-based matching app for founders with terrible startup ideas. Swipe through ideas, send requests to idea creators, match when requests are accepted, and chat in real-time. Includes an AI-powered idea generator and a cinematic dark theme.
