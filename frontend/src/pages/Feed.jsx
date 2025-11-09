@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../api/api';
@@ -157,7 +158,10 @@ export default function Feed() {
                 <p className="text-textLight text-lg mb-6 font-light leading-relaxed">{meme.content}</p>
 
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                  <Link 
+                    to={`/profile/${meme.submittedBy?._id}`}
+                    className="flex items-center gap-3 hover:opacity-80 transition"
+                  >
                     <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-800">
                       <img
                         src={meme.submittedBy?.avatar || `https://ui-avatars.com/api/?name=${meme.submittedBy?.name}`}
@@ -165,10 +169,10 @@ export default function Feed() {
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <span className="text-textGray text-sm font-light">
+                    <span className="text-textGray text-sm font-light hover:text-textLight transition">
                       {meme.submittedBy?.name}
                     </span>
-                  </div>
+                  </Link>
 
                   <motion.button
                     whileHover={{ scale: 1.05 }}

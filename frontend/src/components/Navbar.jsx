@@ -1,13 +1,15 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -15,6 +17,17 @@ export default function Navbar() {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   // Don't show navbar on marketing, login page or auth callback
@@ -62,36 +75,54 @@ export default function Navbar() {
             <NavLink to="/feed" isActive={isActive('/feed')}>
               Feed
             </NavLink>
-            <NavLink to="/profile" isActive={isActive('/profile')}>
-              Profile
-            </NavLink>
 
-            {/* User Avatar & Logout */}
-            <div className="relative group">
-              <motion.div
-                whileHover={{ scale: 1.1 }}
-                className="w-10 h-10 rounded-full overflow-hidden border-2 border-netflixRed cursor-pointer"
+            {/* User Avatar & Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowDropdown(!showDropdown)}
+                className="w-10 h-10 rounded-full overflow-hidden border border-netflixRed/30 hover:border-netflixRed transition cursor-pointer"
               >
                 <img
                   src={user.avatar || `https://ui-avatars.com/api/?name=${user.name}`}
                   alt={user.name}
                   className="w-full h-full object-cover"
                 />
-              </motion.div>
+              </motion.button>
 
               {/* Dropdown */}
-              <div className="absolute right-0 mt-2 w-48 bg-cardBg border border-gray-700 rounded-lg shadow-glow opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                <div className="p-4 border-b border-gray-700">
-                  <p className="text-textLight font-semibold truncate">{user.name}</p>
-                  <p className="text-textGray text-sm truncate">{user.email}</p>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="w-full text-left px-4 py-3 text-textLight hover:bg-netflixRed/20 transition-colors"
-                >
-                  Sign Out
-                </button>
-              </div>
+              <AnimatePresence>
+                {showDropdown && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 mt-2 w-48 bg-darkBg/95 backdrop-blur-xl border border-gray-900 rounded-lg shadow-2xl"
+                  >
+                    <div className="p-4 border-b border-gray-900">
+                      <p className="text-textLight font-light truncate">{user.name}</p>
+                      <p className="text-textGray text-sm truncate font-light">{user.email}</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        navigate('/profile');
+                        setShowDropdown(false);
+                      }}
+                      className="w-full text-left px-4 py-3 text-textLight hover:bg-netflixRed/20 transition-colors font-light"
+                    >
+                      Profile
+                    </button>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-3 text-textLight hover:bg-netflixRed/20 transition-colors font-light"
+                    >
+                      Sign Out
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </div>

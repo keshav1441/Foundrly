@@ -20,14 +20,14 @@ export default function SwipePage() {
   };
 
   return (
-    <div className="min-h-screen bg-black pt-20">
-      <div className="container mx-auto px-4 py-8">
+    <div className="h-screen bg-black pt-20 overflow-hidden flex flex-col">
+      <div className="container mx-auto px-4 flex-1 flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-4 flex-shrink-0">
           <motion.h1
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-4xl font-light text-textLight tracking-tight"
+            className="text-3xl md:text-4xl font-light text-textLight tracking-tight"
           >
             Swipe through ideas
           </motion.h1>
@@ -39,14 +39,16 @@ export default function SwipePage() {
             whileTap={{ scale: 0.95 }}
             onClick={handleGenerateIdeas}
             disabled={generating}
-            className="bg-netflixRed text-white px-6 py-2.5 rounded-md font-medium hover:bg-netflixRed/90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-netflixRed text-white px-6 py-2.5 rounded-md font-medium hover:bg-netflixRed/90 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm md:text-base"
           >
             {generating ? 'Generating...' : 'Generate Ideas'}
           </motion.button>
         </div>
 
         {/* Swipe Deck */}
-        <SwipeDeck />
+        <div className="flex-1 min-h-0">
+          <SwipeDeck />
+        </div>
       </div>
     </div>
   );
