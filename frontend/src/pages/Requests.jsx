@@ -18,7 +18,9 @@ export default function Requests() {
   const loadRequests = async () => {
     try {
       const response = await api.getRequests();
-      setRequests(response.data);
+      // Backend returns { received: [], sent: [] }
+      // We only show received requests (requests for your ideas)
+      setRequests(response.data.received || []);
     } catch (error) {
       console.error("Failed to load requests:", error);
       showToast("Failed to load requests", "error");

@@ -20,10 +20,22 @@ export default function Feed() {
     loadMemes();
   }, []);
 
+  // Fisher-Yates shuffle algorithm
+  const shuffleArray = (array) => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
   const loadMemes = async () => {
     try {
       const response = await api.getMemes();
-      setMemes(response.data);
+      // Always shuffle the feed
+      const shuffledMemes = shuffleArray(response.data);
+      setMemes(shuffledMemes);
     } catch (error) {
       console.error('Failed to load memes:', error);
     } finally {

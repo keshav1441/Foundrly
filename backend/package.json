@@ -8,7 +8,8 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "clear-data": "node scripts/clearData.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.2.0",

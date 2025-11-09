@@ -93,26 +93,65 @@ const SwipeDeck = forwardRef(function SwipeDeck({ onIdeaClick, ...props }, ref) 
     }
 
     try {
-      const response = await api.swipe(currentIdea._id, direction);
+      // Store the idea before making the API call (in case currentIndex changes)
+      const ideaToSwipe = { ...currentIdea };
+      
+      console.log('=== SWIPE DEBUG ===');
+      console.log('Idea being swiped:', ideaToSwipe);
+      console.log('Idea submittedBy:', ideaToSwipe.submittedBy);
+      console.log('Direction:', direction);
+      console.log('Is drag swipe:', isDragSwipe);
+      
+      const response = await api.swipe(ideaToSwipe._id, direction);
+      console.log('=== FRONTEND SWIPE RESPONSE ===');
+      console.log('Full response:', response);
+      console.log('Response.data:', response.data);
+      console.log('Response.data?.needsRequest:', response.data?.needsRequest);
+      console.log('Type of response.data:', typeof response.data);
+      console.log('response.data keys:', Object.keys(response.data || {}));
       
       // If swiping right on someone else's idea, show request modal
-      if (direction === 'right' && response.data?.needsRequest) {
-        // Card animation already started, let it complete
-        // Then show modal
-        setTimeout(() => {
-          setPendingRequestIdea(currentIdea);
+      if (direction === 'right') {
+        console.log('Direction is RIGHT, checking needsRequest...');
+        
+        // Check multiple ways the response might be structured
+        const needsRequest = response.data?.needsRequest || 
+                            response?.data?.needsRequest || 
+                            (response.data && response.data.needsRequest === true);
+        
+        console.log('needsRequest value:', needsRequest);
+        console.log('Boolean check:', needsRequest === true);
+        console.log('Truthy check:', !!needsRequest);
+        
+        if (needsRequest === true || needsRequest === 'true') {
+          console.log('✅✅✅ REQUEST NEEDED - SHOWING MODAL NOW ✅✅✅');
+          console.log('Idea to request:', ideaToSwipe);
+          
+          // Show modal immediately
+          setPendingRequestIdea(ideaToSwipe);
           setShowRequestModal(true);
-        }, 300);
-        // Continue with normal cleanup
-        setTimeout(() => {
-          setSwipeDirection(null);
-          swipeDirectionRef.current = null;
-          exitingCardIdRef.current = null;
-          exitingCardDirectionRef.current = null;
-          setClickedButton(null);
-          x.set(0);
-        }, 600);
-        return;
+          
+          // Force a re-render check
+          setTimeout(() => {
+            console.log('After 100ms - Modal should be visible');
+            console.log('Checking if modal is in DOM...');
+          }, 100);
+          
+          // Continue with normal cleanup
+          const cleanupDelay = isDragSwipe ? 800 : 900;
+          setTimeout(() => {
+            setSwipeDirection(null);
+            swipeDirectionRef.current = null;
+            exitingCardIdRef.current = null;
+            exitingCardDirectionRef.current = null;
+            setClickedButton(null);
+            x.set(0);
+          }, cleanupDelay);
+          return;
+        } else {
+          console.log('❌ needsRequest is false or undefined');
+          console.log('Response structure:', JSON.stringify(response.data, null, 2));
+        }
       }
       
       // Reset after a delay to ensure exit animation has processed
@@ -146,6 +185,15 @@ const SwipeDeck = forwardRef(function SwipeDeck({ onIdeaClick, ...props }, ref) 
     setIsDragging(false);
     setClickedButton(null);
   }, [currentIndex, x]);
+
+  // Debug modal state
+  useEffect(() => {
+    console.log('🔔 Modal state changed - showRequestModal:', showRequestModal, 'pendingRequestIdea:', pendingRequestIdea);
+    if (showRequestModal) {
+      console.log('✅✅✅ MODAL STATE IS TRUE - MODAL SHOULD BE VISIBLE ✅✅✅');
+      console.log('Pending idea:', pendingRequestIdea);
+    }
+  }, [showRequestModal, pendingRequestIdea]);
 
   const handleDragStart = () => {
     setIsDragging(true);
@@ -478,7 +526,8 @@ const SwipeDeck = forwardRef(function SwipeDeck({ onIdeaClick, ...props }, ref) 
         }}
         idea={pendingRequestIdea}
         onRequestSent={() => {
-          // Card already swiped, just need to clean up
+          setShowRequestModal(false);
+          setPendingRequestIdea(null);
         }}
       />
     </div>

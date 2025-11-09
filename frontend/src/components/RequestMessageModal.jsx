@@ -8,6 +8,15 @@ export default function RequestMessageModal({ isOpen, onClose, idea, onRequestSe
   const [loading, setLoading] = useState(false);
   const { showToast } = useToast();
 
+  // Debug logging
+  console.log('🔔 RequestMessageModal render - isOpen:', isOpen, 'idea:', idea);
+  console.log('Modal will render?', isOpen === true);
+  
+  // Force render test
+  if (isOpen) {
+    console.log('✅✅✅ MODAL IS OPEN - SHOULD BE VISIBLE ✅✅✅');
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!message.trim()) {
@@ -33,10 +42,9 @@ export default function RequestMessageModal({ isOpen, onClose, idea, onRequestSe
     }
   };
 
-  if (!isOpen) return null;
-
+  // Always render the AnimatePresence, but conditionally show content
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {isOpen && (
         <>
           {/* Backdrop */}
@@ -45,7 +53,7 @@ export default function RequestMessageModal({ isOpen, onClose, idea, onRequestSe
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999]"
           />
 
           {/* Modal */}
@@ -53,10 +61,10 @@ export default function RequestMessageModal({ isOpen, onClose, idea, onRequestSe
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="bg-darkBg/95 backdrop-blur-xl border border-gray-900 rounded-lg shadow-2xl max-w-md w-full p-6">
+            <div className="bg-darkBg/95 backdrop-blur-xl border border-gray-900 rounded-lg shadow-2xl max-w-md w-full p-6 pointer-events-auto">
               <h2 className="text-2xl font-light text-textLight mb-2">
                 Send a Request
               </h2>

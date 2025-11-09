@@ -46,18 +46,36 @@ router.post("/swipe", authenticateJWT, async (req, res) => {
 
     if (direction === "right") {
       // Get the idea to find the submitter
-      const idea = await Idea.findById(ideaId);
+      const idea = await Idea.findById(ideaId).populate('submittedBy');
       let matchCreated = false;
       let populatedMatch = null;
       let needsRequest = false;
 
-      // If someone likes my idea, they need to send a request (not immediate match)
-      if (idea && idea.submittedBy && idea.submittedBy.toString() !== userId) {
-        needsRequest = true;
+      // If someone likes another person's idea, they need to send a request (not immediate match)
+      console.log('Checking if request needed...');
+      console.log('Idea:', idea ? { id: idea._id, name: idea.name, submittedBy: idea.submittedBy } : 'null');
+      console.log('Current userId:', userId);
+      
+      if (idea && idea.submittedBy && idea.submittedBy._id) {
+        const ideaOwnerId = idea.submittedBy._id.toString();
+        console.log('Idea owner ID:', ideaOwnerId);
+        console.log('User ID:', userId);
+        console.log('Are they different?', ideaOwnerId !== userId);
+        
+        if (ideaOwnerId !== userId) {
+          console.log('✅ Request needed: User', userId, 'liked idea', ideaId, 'owned by', ideaOwnerId);
+          // Return early - don't create matches for other people's ideas
+          return res.json({ needsRequest: true, ideaId });
+        } else {
+          console.log('❌ User is trying to like their own idea - no request needed');
+        }
+      } else {
+        console.log('❌ Idea has no submittedBy or submittedBy._id is missing');
+        console.log('Idea submittedBy:', idea?.submittedBy);
       }
 
-      // Also check if another user already swiped right on this idea (existing logic)
-      // This creates matches when two users both like the same idea
+      // Only create matches when two users both like the same idea (and it's not someone's specific idea)
+      // This handles cases where ideas might be shared/generated ideas
       const otherRightSwipe = await Swipe.findOne({
         idea: ideaId,
         user: { $ne: userId },
@@ -106,11 +124,6 @@ router.post("/swipe", authenticateJWT, async (req, res) => {
 
       if (matchCreated && populatedMatch) {
         return res.json({ match: populatedMatch });
-      }
-
-      // If swiping right on someone else's idea, indicate that a request is needed
-      if (needsRequest) {
-        return res.json({ needsRequest: true, ideaId });
       }
     }
 
