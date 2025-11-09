@@ -89,7 +89,7 @@ router.get("/", authenticateJWT, async (req, res) => {
       notifications.push({
         type: "request_accepted",
         id: request._id,
-        createdAt: request.createdAt,
+        createdAt: request.updatedAt || request.createdAt, // Use updatedAt to show when it was accepted
         data: {
           ideaOwner: request.ideaOwner,
           idea: request.idea,

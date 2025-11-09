@@ -160,8 +160,9 @@ router.post("/:id/accept", authenticateJWT, async (req, res) => {
         .json({ error: "Request has already been processed" });
     }
 
-    // Update request status
+    // Update request status and ensure viewed is false so it shows up in notifications
     request.status = "accepted";
+    request.viewed = false;
     await request.save();
 
     // Create a match
