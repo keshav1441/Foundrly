@@ -122,21 +122,8 @@ async function generateIdeas(count = 5) {
     }
   }
 
-  // Fallback to mock ideas
-  const mockIdeas = [
-    'CryptoChores: Blockchain-based chore tracking for kids',
-    'Rent-a-Plant: Subscription service for fake plants',
-    'DogTweet: Social network exclusively for dogs',
-    'UberForPotholes: Crowdsourced pothole filling service',
-    'NFT-Toaster: Non-fungible toast art marketplace',
-    'Coffee-as-a-Service: Monthly subscription for instant coffee',
-    'Rent-a-Friend-for-Meetings: Hire actors to attend your Zoom calls',
-    'SmartSocks: IoT socks that tweet your step count',
-    'MemeStockAdvisor: AI that picks stocks based on memes',
-    'GhostChef: Meal delivery from restaurants that closed',
-  ];
-
-  return mockIdeas.slice(0, count);
+  // No fallback - require AI API keys
+  throw new Error('AI API keys not configured. Please set OPENAI_API_KEY or GEMINI_API_KEY in your environment variables.');
 }
 
 async function pitchPolish(idea) {
@@ -177,8 +164,8 @@ async function pitchPolish(idea) {
     }
   }
 
-  // Fallback mock pitch
-  return `We're revolutionizing the ${idea} space with cutting-edge technology and a scalable business model. Our platform leverages AI and blockchain to create unprecedented value for stakeholders. Join us in disrupting this $10B market.`;
+  // No fallback - require AI API keys
+  throw new Error('AI API keys not configured. Please set OPENAI_API_KEY or GEMINI_API_KEY in your environment variables.');
 }
 
 export default router;

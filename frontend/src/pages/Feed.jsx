@@ -8,7 +8,7 @@ export default function Feed() {
   const { user } = useAuth();
   const [memes, setMemes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [newMeme, setNewMeme] = useState({ content: '', imageUrl: '' });
+  const [newMeme, setNewMeme] = useState({ title: '', description: '', imageUrl: '' });
   const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export default function Feed() {
     e.preventDefault();
     try {
       await api.createMeme(newMeme);
-      setNewMeme({ content: '', imageUrl: '' });
+      setNewMeme({ title: '', description: '', imageUrl: '' });
       setShowForm(false);
       loadMemes();
     } catch (error) {
@@ -99,11 +99,24 @@ export default function Feed() {
             <form onSubmit={handleSubmitMeme} className="space-y-4">
               <div>
                 <label className="block text-textLight font-light mb-2">
-                  Content
+                  Title
+                </label>
+                <input
+                  type="text"
+                  value={newMeme.title}
+                  onChange={(e) => setNewMeme({ ...newMeme, title: e.target.value })}
+                  placeholder="Enter a catchy title..."
+                  className="w-full bg-black border border-gray-800 rounded-md px-4 py-3 text-textLight focus:outline-none focus:border-netflixRed/50 transition font-light"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-textLight font-light mb-2">
+                  Description
                 </label>
                 <textarea
-                  value={newMeme.content}
-                  onChange={(e) => setNewMeme({ ...newMeme, content: e.target.value })}
+                  value={newMeme.description}
+                  onChange={(e) => setNewMeme({ ...newMeme, description: e.target.value })}
                   placeholder="Share your startup wisdom..."
                   className="w-full bg-black border border-gray-800 rounded-md px-4 py-3 text-textLight focus:outline-none focus:border-netflixRed/50 transition resize-none font-light"
                   rows="3"
@@ -155,7 +168,17 @@ export default function Feed() {
               )}
 
               <div className="p-6">
-                <p className="text-textLight text-lg mb-6 font-light leading-relaxed">{meme.content}</p>
+                {meme.title ? (
+                  <h3 className="text-textLight text-xl mb-2 font-medium">{meme.title}</h3>
+                ) : null}
+                {meme.description ? (
+                  <p className="text-textGray text-base mb-6 font-light leading-relaxed">{meme.description}</p>
+                ) : meme.content ? (
+                  // Fallback for old posts with content field
+                  <p className="text-textGray text-base mb-6 font-light leading-relaxed">{meme.content}</p>
+                ) : (
+                  <p className="text-textGray text-base mb-6 font-light leading-relaxed italic">No description available</p>
+                )}
 
                 <div className="flex items-center justify-between">
                   <Link 
