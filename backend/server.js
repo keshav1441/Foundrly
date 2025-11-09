@@ -12,21 +12,30 @@ import { dirname, join } from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Load environment variables from backend/.env
+// Load environment variables from backend/.env (if file exists)
+// On production platforms like Render, env vars are set directly, so .env file is optional
 const envPath = join(__dirname, ".env");
-console.log("🔍 Loading .env from:", envPath);
-
 const result = dotenv.config({ path: envPath });
+
 if (result.error) {
-  console.error("❌ Error loading .env file:", result.error);
+  // Only log error if it's not a "file not found" error (ENOENT)
+  // This is expected on production platforms where env vars are set directly
+  if (result.error.code !== "ENOENT") {
+    console.error("❌ Error loading .env file:", result.error);
+  } else {
+    console.log(
+      "ℹ️  No .env file found - using environment variables directly (expected in production)"
+    );
+  }
 } else {
   console.log("✅ .env file loaded successfully");
-  // Debug: Check if GEMINI_API_KEY is loaded
-  if (process.env.GEMINI_API_KEY) {
-    console.log("✅ GEMINI_API_KEY found in environment");
-  } else {
-    console.log("❌ GEMINI_API_KEY NOT found in environment");
-  }
+}
+
+// Debug: Check if GEMINI_API_KEY is loaded (from .env or environment)
+if (process.env.GEMINI_API_KEY) {
+  console.log("✅ GEMINI_API_KEY found in environment");
+} else {
+  console.log("ℹ️  GEMINI_API_KEY not found (optional for AI features)");
 }
 
 // Import routes
