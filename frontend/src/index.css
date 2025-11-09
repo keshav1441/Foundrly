@@ -11,8 +11,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Poppins', 'Inter', sans-serif;
-  background: linear-gradient(135deg, #141414 0%, #1A0F2E 50%, #2D0A0E 100%);
-  background-attachment: fixed;
+  background: #000000;
   color: #E5E5E5;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -23,20 +22,15 @@ body {
   min-height: 100vh;
 }
 
-/* Scrollbar styling */
+/* Hide scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  display: none;
+  width: 0;
+  height: 0;
 }
 
-::-webkit-scrollbar-track {
-  background: #141414;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #E50914;
-  border-radius: 9999px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #F40612;
+/* Hide scrollbar for Firefox */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
