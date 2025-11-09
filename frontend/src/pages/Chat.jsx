@@ -303,7 +303,7 @@ export default function Chat() {
               </motion.button>
             </div>
           ) : (
-            <div>
+            <div className="py-2">
               {matches.map((matchItem) => {
                 const other = matchItem.user1?._id === user._id || matchItem.user1?._id?.toString() === user._id?.toString()
                   ? matchItem.user2
@@ -315,53 +315,28 @@ export default function Chat() {
                     key={matchItem._id}
                     whileHover={{ backgroundColor: 'rgba(229, 9, 20, 0.1)' }}
                     onClick={() => handleSelectMatch(matchItem._id)}
-                    className={`p-4 border-b border-gray-900 cursor-pointer transition-all ${
+                    className={`mx-2 my-1 p-3 rounded-lg border-b border-gray-900 cursor-pointer transition-all ${
                       isSelected ? 'bg-netflixRed/20 border-l-4 border-netflixRed' : 'hover:bg-darkBg/50'
                     }`}
                   >
                      <div className="flex items-start gap-3">
-                       {/* Avatar - Show idea emoji or first letter */}
-                       <div className="w-12 h-12 rounded-full overflow-hidden border border-netflixRed/30 flex-shrink-0 bg-gradient-to-br from-netflixRed/20 to-purple-600/20 flex items-center justify-center">
-                         {matchItem.idea?.name ? (
-                           <span className="text-xl font-bold text-textLight">
-                             {matchItem.idea.name.charAt(0)}
-                           </span>
-                         ) : (
-                           <img
-                             src={other?.avatar || `https://ui-avatars.com/api/?name=${other?.name}`}
-                             alt={other?.name}
-                             className="w-full h-full object-cover"
-                           />
-                         )}
+                       {/* Avatar */}
+                       <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+                         <img
+                           src={other?.avatar || `https://ui-avatars.com/api/?name=${other?.name}`}
+                           alt={other?.name}
+                           className="w-full h-full object-cover"
+                         />
                        </div>
 
-                       {/* Content */}
+                       {/* Idea Title and Person Name */}
                        <div className="flex-1 min-w-0">
-                         <div className="flex items-center justify-between mb-1">
-                           <h3 className="text-sm font-medium text-textLight truncate">
-                             {matchItem.idea?.name || 'Untitled Idea'}
-                           </h3>
-                           {matchItem.lastMessage && (
-                             <span className="text-xs text-textGray/60 ml-2 flex-shrink-0">
-                               {formatTime(matchItem.lastMessage.createdAt)}
-                             </span>
-                           )}
-                         </div>
-                         
-                         {other && (
-                           <p className="text-xs text-textGray/60 mb-1 truncate">
-                             with {other.name}
-                           </p>
-                         )}
-
-                         {matchItem.lastMessage ? (
-                           <p className="text-sm text-textGray truncate">
-                             {matchItem.lastMessage.sender?._id === user._id ? 'You: ' : `${other?.name}: `}
-                             {matchItem.lastMessage.content}
-                           </p>
-                         ) : (
-                           <p className="text-sm text-textGray/60 italic">No messages yet</p>
-                         )}
+                         <h3 className="text-sm font-medium text-textLight truncate mb-1">
+                           {matchItem.idea?.name || 'Untitled Idea'}
+                         </h3>
+                         <p className="text-xs text-textGray font-light truncate">
+                           by {other?.name || 'Unknown User'}
+                         </p>
                        </div>
                      </div>
                   </motion.div>
@@ -376,38 +351,18 @@ export default function Chat() {
       <div className="flex-1 flex flex-col bg-black h-full overflow-hidden">
         {selectedMatchId && match && otherUser ? (
           <>
-             {/* Chat Header */}
-             <motion.div
-               initial={{ opacity: 0, y: -20 }}
-               animate={{ opacity: 1, y: 0 }}
-               className="bg-darkBg/50 backdrop-blur-xl p-4 border-b border-gray-900 flex-shrink-0"
-             >
-               <div className="flex items-center gap-4">
-                 <div className="w-10 h-10 rounded-full overflow-hidden border border-netflixRed/30 bg-gradient-to-br from-netflixRed/20 to-purple-600/20 flex items-center justify-center">
-                   {match.idea?.name ? (
-                     <span className="text-lg font-bold text-textLight">
-                       {match.idea.name.charAt(0)}
-                     </span>
-                   ) : (
-                     <img
-                       src={otherUser.avatar || `https://ui-avatars.com/api/?name=${otherUser.name}`}
-                       alt={otherUser.name}
-                       className="w-full h-full object-cover"
-                     />
-                   )}
-                 </div>
-
-                 <div className="flex-1">
-                   <h2 className="text-lg font-light text-textLight">{match.idea?.name || 'Untitled Idea'}</h2>
-                   <p className="text-xs text-textGray font-light">
-                     with {otherUser.name}
-                   </p>
-                 </div>
-               </div>
-             </motion.div>
+            {/* Chat Header */}
+            <div className="bg-darkBg/50 backdrop-blur-xl px-6 py-4 border-b border-gray-900 flex-shrink-0">
+              <h2 className="text-lg font-light text-textLight mb-1">
+                {match.idea?.name || 'Untitled Idea'}
+              </h2>
+              <p className="text-xs text-textGray font-light">
+                by {otherUser.name}
+              </p>
+            </div>
 
             {/* Messages Container */}
-            <div className="flex-1 bg-darkBg/20 overflow-y-auto overflow-x-hidden p-6 space-y-4">
+            <div className="flex-1 bg-darkBg/20 overflow-y-auto overflow-x-hidden px-6 py-4 space-y-4">
               <AnimatePresence>
                 {messages.length === 0 ? (
                   <div className="flex items-center justify-center h-full">
@@ -455,7 +410,7 @@ export default function Chat() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               onSubmit={handleSendMessage}
-              className="bg-darkBg/50 backdrop-blur-xl p-4 border-t border-gray-900 flex-shrink-0"
+              className="bg-darkBg/50 backdrop-blur-xl px-6 py-4 border-t border-gray-900 flex-shrink-0"
             >
               <div className="flex items-center gap-3">
                 <input

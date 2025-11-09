@@ -205,7 +205,7 @@ export default function Requests() {
                       </p>
                     </div>
                     <Link
-                      to="/matches"
+                      to="/chat"
                       className="text-netflixRed text-sm font-medium hover:underline"
                     >
                       View Match

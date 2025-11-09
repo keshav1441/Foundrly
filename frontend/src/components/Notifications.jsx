@@ -113,7 +113,7 @@ export default function Notifications({ isOpen, onClose, onNotificationsChange }
       navigate('/requests');
       onClose();
     } else if (notification.type === 'request_accepted') {
-      navigate('/matches');
+      navigate('/chat');
       onClose();
     } else if (notification.type === 'message') {
       navigate(`/chat/${notification.data.match._id}`);

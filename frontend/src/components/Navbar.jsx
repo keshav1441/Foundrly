@@ -146,7 +146,7 @@ export default function Navbar() {
             <NavLink to="/swipe" isActive={isActive('/swipe')}>
               Swipe
             </NavLink>
-            <NavLink to="/matches" isActive={isActive('/matches')}>
+            <NavLink to="/chat" isActive={location.pathname.startsWith('/chat') || location.pathname === '/matches'}>
               Matches
             </NavLink>
             <NavLink to="/requests" isActive={isActive('/requests')}>

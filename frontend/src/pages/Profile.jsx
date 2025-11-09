@@ -76,7 +76,7 @@ export default function Profile() {
   };
 
   const handleMessage = () => {
-    navigate(`/matches`);
+    navigate(`/chat`);
   };
 
   const scrollToIdeas = () => {

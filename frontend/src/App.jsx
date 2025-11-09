@@ -31,7 +31,7 @@ function AppRoutes() {
         path="/matches"
         element={
           <ProtectedRoute>
-            <Matches />
+            <Navigate to="/chat" replace />
           </ProtectedRoute>
         }
       />
