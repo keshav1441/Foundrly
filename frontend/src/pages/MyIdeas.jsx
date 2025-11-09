@@ -47,16 +47,16 @@ export default function MyIdeas() {
   }
 
   return (
-    <div className="min-h-screen bg-black pt-20 pb-12">
-      <div className="container mx-auto px-6">
+    <div className="min-h-screen bg-black pt-16 md:pt-20 pb-12">
+      <div className="container mx-auto px-4 sm:px-6">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-6 sm:mb-8"
         >
-          <h1 className="text-4xl md:text-5xl font-light text-textLight mb-4">My Ideas</h1>
-          <p className="text-textGray text-lg font-light">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-light text-textLight mb-2 sm:mb-4">My Ideas</h1>
+          <p className="text-textGray text-base sm:text-lg font-light">
             Manage and view all your startup ideas
           </p>
         </motion.div>
@@ -84,7 +84,7 @@ export default function MyIdeas() {
             </div>
           </motion.div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {ideas.map((idea, index) => (
               <motion.div
                 key={idea._id}

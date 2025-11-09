@@ -14,6 +14,7 @@ export default function Navbar() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const dropdownRef = useRef(null);
   const socketRef = useRef(null);
 
@@ -144,17 +145,17 @@ export default function Navbar() {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/swipe">
+          <Link to="/swipe" onClick={() => setShowMobileMenu(false)}>
             <motion.div
               whileHover={{ opacity: 0.8 }}
-              className="text-2xl font-light tracking-tight text-textLight"
+              className="text-xl sm:text-2xl font-light tracking-tight text-textLight"
             >
               found<span className="text-netflixRed">r</span>ly
             </motion.div>
           </Link>
 
-          {/* Nav Links */}
-          <div className="flex items-center gap-6">
+          {/* Desktop Nav Links */}
+          <div className="hidden md:flex items-center gap-6">
             <NavLink to="/swipe" isActive={isActive('/swipe')}>
               Swipe
             </NavLink>
@@ -229,7 +230,7 @@ export default function Navbar() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.2 }}
-                    className="absolute right-0 mt-2 w-48 bg-darkBg/95 backdrop-blur-xl border border-gray-900 rounded-lg shadow-2xl"
+                    className="absolute right-0 mt-2 w-48 bg-darkBg/95 backdrop-blur-xl border border-gray-900 rounded-lg shadow-2xl z-50"
                   >
                     <div className="p-4 border-b border-gray-900">
                       <p className="text-textLight font-light truncate">{user.name}</p>
@@ -255,7 +256,153 @@ export default function Navbar() {
               </AnimatePresence>
             </div>
           </div>
+
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center gap-3">
+            {/* Notifications Icon - Mobile */}
+            <div className="relative">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="relative w-10 h-10 flex items-center justify-center text-textGray hover:text-textLight transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                {unreadCount > 0 && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute -top-1 -right-1 bg-netflixRed text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
+                  >
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </motion.span>
+                )}
+              </motion.button>
+
+              <Notifications
+                isOpen={showNotifications}
+                onClose={() => {
+                  setShowNotifications(false);
+                }}
+                onNotificationsChange={() => {
+                  import('../api/api').then(({ api }) => {
+                    api.getNotifications().then(res => {
+                      setUnreadCount(res.data.unreadCount || 0);
+                    }).catch(console.error);
+                  });
+                }}
+              />
+            </div>
+
+            {/* Hamburger Menu Button */}
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              className="w-10 h-10 flex items-center justify-center text-textGray hover:text-textLight transition-colors"
+            >
+              {showMobileMenu ? (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
+            </motion.button>
+          </div>
         </div>
+
+        {/* Mobile Menu Backdrop */}
+        <AnimatePresence>
+          {showMobileMenu && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setShowMobileMenu(false)}
+              className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Mobile Menu - Slides from Right */}
+        <AnimatePresence>
+          {showMobileMenu && (
+            <motion.div
+              initial={{ opacity: 0, x: '100%' }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: '100%' }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="fixed top-0 right-0 h-full w-80 max-w-[85vw] bg-darkBg/95 backdrop-blur-xl border-l border-gray-900 z-50 md:hidden overflow-y-auto"
+            >
+              <div className="p-6 flex flex-col h-full">
+                {/* Close Button */}
+                <div className="flex justify-end mb-6">
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setShowMobileMenu(false)}
+                    className="w-10 h-10 flex items-center justify-center text-textGray hover:text-textLight transition-colors"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </motion.button>
+                </div>
+
+                {/* Menu Items */}
+                <div className="flex flex-col gap-4 flex-1">
+                  <MobileNavLink to="/swipe" isActive={isActive('/swipe')} onClick={() => setShowMobileMenu(false)}>
+                    Swipe
+                  </MobileNavLink>
+                  <MobileNavLink to="/chat" isActive={location.pathname.startsWith('/chat') || location.pathname === '/matches'} onClick={() => setShowMobileMenu(false)}>
+                    Matches
+                  </MobileNavLink>
+                  <MobileNavLink to="/requests" isActive={isActive('/requests')} onClick={() => setShowMobileMenu(false)}>
+                    Requests
+                  </MobileNavLink>
+                  <MobileNavLink to="/my-ideas" isActive={isActive('/my-ideas')} onClick={() => setShowMobileMenu(false)}>
+                    My Ideas
+                  </MobileNavLink>
+                  
+                  <div className="pt-6 border-t border-gray-900 flex items-center gap-3">
+                    <Avatar
+                      src={user.avatar}
+                      name={user.name}
+                      size="sm"
+                    />
+                    <div className="flex-1">
+                      <p className="text-textLight font-light text-sm">{user.name}</p>
+                      <p className="text-textGray text-xs font-light truncate">{user.email}</p>
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={() => {
+                      navigate('/profile');
+                      setShowMobileMenu(false);
+                    }}
+                    className="text-left text-textLight hover:text-netflixRed transition-colors font-light py-2"
+                  >
+                    Profile
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setShowMobileMenu(false);
+                    }}
+                    className="text-left text-textLight hover:text-netflixRed transition-colors font-light py-2"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.nav>
   );
@@ -277,6 +424,30 @@ function NavLink({ to, isActive, children }) {
           <motion.div
             layoutId="navbar-indicator"
             className="absolute -bottom-1 left-0 right-0 h-0.5 bg-netflixRed"
+            transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+          />
+        )}
+      </motion.div>
+    </Link>
+  );
+}
+
+function MobileNavLink({ to, isActive, children, onClick }) {
+  return (
+    <Link to={to} onClick={onClick}>
+      <motion.div
+        whileHover={{ x: 4 }}
+        className="relative"
+      >
+        <span className={`text-base font-medium transition-colors ${
+          isActive ? 'text-textLight' : 'text-textGray hover:text-textLight'
+        }`}>
+          {children}
+        </span>
+        {isActive && (
+          <motion.div
+            layoutId="mobile-navbar-indicator"
+            className="absolute -left-2 top-0 bottom-0 w-0.5 bg-netflixRed"
             transition={{ type: 'spring', stiffness: 380, damping: 30 }}
           />
         )}

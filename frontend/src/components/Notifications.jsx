@@ -240,7 +240,7 @@ export default function Notifications({ isOpen, onClose, onNotificationsChange }
             initial={{ opacity: 0, x: 20, scale: 0.95 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 20, scale: 0.95 }}
-            className="fixed right-4 top-20 w-96 max-w-[calc(100vw-2rem)] bg-darkBg/95 backdrop-blur-xl border border-gray-900 rounded-lg shadow-2xl z-[9999] max-h-[calc(100vh-6rem)] flex flex-col"
+            className="fixed right-2 sm:right-4 top-16 md:top-20 w-[calc(100vw-1rem)] sm:w-96 max-w-[calc(100vw-2rem)] bg-darkBg/95 backdrop-blur-xl border border-gray-900 rounded-lg shadow-2xl z-[9999] max-h-[calc(100vh-5rem)] md:max-h-[calc(100vh-6rem)] flex flex-col"
           >
             {/* Header */}
             <div className="p-4 border-b border-gray-900">

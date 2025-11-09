@@ -21,6 +21,7 @@ export default function Chat() {
   const [socket, setSocket] = useState(null);
   const [otherUser, setOtherUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const messagesEndRef = useRef(null);
   const processedMessageIds = useRef(new Set());
   const socketRef = useRef(null);
@@ -249,6 +250,7 @@ export default function Chat() {
   const handleSelectMatch = (matchId) => {
     setSelectedMatchId(matchId);
     navigate(`/chat/${matchId}`, { replace: true });
+    setShowMobileSidebar(false); // Close mobile sidebar when selecting a match
   };
 
   const formatTime = (date) => {
@@ -280,9 +282,19 @@ export default function Chat() {
   }
 
   return (
-    <div className="h-screen bg-black pt-20 flex overflow-hidden">
+    <div className="h-screen bg-black pt-16 md:pt-20 flex overflow-hidden">
+      {/* Mobile Sidebar Overlay */}
+      {showMobileSidebar && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setShowMobileSidebar(false)}
+        />
+      )}
+
       {/* Left Sidebar - Matches List (22% width) */}
-      <div className="w-[22%] min-w-[280px] border-r border-gray-900 flex flex-col bg-darkBg/30 h-full overflow-hidden">
+      <div className={`fixed md:static inset-y-0 left-0 md:left-auto top-16 md:top-20 w-[280px] md:w-[22%] md:min-w-[280px] border-r border-gray-900 flex flex-col bg-darkBg/95 md:bg-darkBg/30 h-[calc(100vh-4rem)] md:h-full overflow-hidden z-50 md:z-auto transform transition-transform duration-300 ${
+        showMobileSidebar ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+      }`}>
         {/* Header */}
         <div className="p-4 border-b border-gray-900 bg-darkBg/50 backdrop-blur-xl flex-shrink-0">
           <h2 className="text-xl font-light text-textLight mb-1">Messages</h2>
@@ -355,21 +367,32 @@ export default function Chat() {
       </div>
 
       {/* Right Side - Chat Window (78% width) */}
-      <div className="flex-1 flex flex-col bg-black h-full overflow-hidden">
+      <div className="flex-1 flex flex-col bg-black h-full overflow-hidden w-full md:w-auto">
         {selectedMatchId && match && otherUser ? (
           <>
             {/* Chat Header */}
-            <div className="bg-darkBg/50 backdrop-blur-xl px-6 py-4 border-b border-gray-900 flex-shrink-0">
-              <h2 className="text-lg font-light text-textLight mb-1">
-                {match.idea?.name || 'Untitled Idea'}
-              </h2>
-              <p className="text-xs text-textGray font-light">
-                by {otherUser.name}
-              </p>
+            <div className="bg-darkBg/50 backdrop-blur-xl px-4 md:px-6 py-4 border-b border-gray-900 flex-shrink-0 flex items-center gap-3">
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setShowMobileSidebar(true)}
+                className="md:hidden w-10 h-10 flex items-center justify-center text-textGray hover:text-textLight transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <div className="flex-1 min-w-0">
+                <h2 className="text-base md:text-lg font-light text-textLight mb-1 truncate">
+                  {match.idea?.name || 'Untitled Idea'}
+                </h2>
+                <p className="text-xs text-textGray font-light truncate">
+                  by {otherUser.name}
+                </p>
+              </div>
             </div>
 
             {/* Messages Container */}
-            <div className="flex-1 bg-darkBg/20 overflow-y-auto overflow-x-hidden px-6 py-4 space-y-4">
+            <div className="flex-1 bg-darkBg/20 overflow-y-auto overflow-x-hidden px-4 md:px-6 py-4 space-y-4">
               <AnimatePresence>
                 {messages.length === 0 ? (
                   <div className="flex items-center justify-center h-full">
@@ -393,7 +416,7 @@ export default function Chat() {
                         className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
                       >
                         <div
-                          className={`max-w-xs lg:max-w-md px-4 py-3 rounded-lg font-light ${
+                          className={`max-w-[85%] sm:max-w-xs lg:max-w-md px-4 py-3 rounded-lg font-light ${
                             isOwnMessage
                               ? 'bg-netflixRed/90 text-white rounded-br-sm'
                               : 'bg-darkBg/80 text-textLight rounded-bl-sm border border-gray-800'
@@ -417,7 +440,7 @@ export default function Chat() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               onSubmit={handleSendMessage}
-              className="bg-darkBg/50 backdrop-blur-xl px-6 py-4 border-t border-gray-900 flex-shrink-0"
+              className="bg-darkBg/50 backdrop-blur-xl px-4 md:px-6 py-4 border-t border-gray-900 flex-shrink-0"
             >
               <div className="flex items-center gap-3">
                 <input

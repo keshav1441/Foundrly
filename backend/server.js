@@ -157,7 +157,7 @@ mongoose.connection.on("reconnected", () => {
 
 // Start server
 server.listen(PORT, () => {
-  console.log(`🚀 Foundrly backend running on http://localhost:${PORT}`);
+  console.log(`🚀 Foundrly backend running on port ${PORT}`);
 });
 
 export { io };

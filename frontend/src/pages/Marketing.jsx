@@ -138,11 +138,11 @@ export default function Marketing() {
         animate={{ y: 0 }}
         className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-lg border-b border-gray-900"
       >
-        <div className="container mx-auto px-6 py-5 flex items-center justify-between">
+        <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between">
           <motion.div
             whileHover={{ opacity: 0.8 }}
             onClick={() => navigate('/')}
-            className="text-2xl font-light tracking-tight text-textLight cursor-pointer"
+            className="text-xl sm:text-2xl font-light tracking-tight text-textLight cursor-pointer"
           >
             found<span className="text-netflixRed">r</span>ly
           </motion.div>
@@ -151,9 +151,10 @@ export default function Marketing() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/login')}
-            className="bg-netflixRed text-white px-6 py-2.5 rounded-md font-medium text-sm hover:bg-netflixRed/90 transition"
+            className="bg-netflixRed text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-md font-medium text-xs sm:text-sm hover:bg-netflixRed/90 transition"
           >
-            Get Started
+            <span className="hidden sm:inline">Get Started</span>
+            <span className="sm:hidden">Start</span>
           </motion.button>
         </div>
       </motion.nav>
@@ -172,14 +173,14 @@ export default function Marketing() {
           <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-netflixRed/5 rounded-full blur-3xl" />
         </div>
 
-        <div className="container mx-auto px-6 text-center relative z-10 max-w-5xl">
+        <div className="container mx-auto px-4 sm:px-6 text-center relative z-10 max-w-5xl">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="mb-6"
+            className="mb-4 sm:mb-6"
           >
-            <span className="text-sm uppercase tracking-widest text-netflixRed font-medium">
+            <span className="text-xs sm:text-sm uppercase tracking-widest text-netflixRed font-medium">
               Because every bad founder needs company
             </span>
           </motion.div>
@@ -188,17 +189,17 @@ export default function Marketing() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-6xl md:text-8xl font-light tracking-tight text-textLight mb-8 leading-none"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-light tracking-tight text-textLight mb-6 sm:mb-8 leading-none"
           >
             Find your <span className="text-netflixRed">cofounder</span><br />
-            <span className="text-3xl md:text-4xl text-textLight">for the next dumb unicorn</span>
+            <span className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-textLight">for the next dumb unicorn</span>
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-xl text-textGray mb-12 max-w-2xl mx-auto"
+            className="text-base sm:text-lg md:text-xl text-textGray mb-8 sm:mb-12 max-w-2xl mx-auto px-4"
           >
             Swipe through terrible startup ideas. Match with equally delusional founders. 
             Build something together. Probably fail. Repeat.
@@ -208,13 +209,13 @@ export default function Marketing() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.6 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
+            className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4"
           >
             <motion.button
               whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(229, 9, 20, 0.5)' }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate('/login')}
-              className="bg-netflixRed text-white px-10 py-4 rounded-md font-medium text-lg"
+              className="bg-netflixRed text-white px-6 sm:px-10 py-3 sm:py-4 rounded-md font-medium text-base sm:text-lg"
             >
               Start Swiping
             </motion.button>
@@ -222,7 +223,7 @@ export default function Marketing() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-transparent border border-textGray/30 text-textLight px-10 py-4 rounded-md font-medium text-lg hover:border-textGray/60 transition"
+              className="bg-transparent border border-textGray/30 text-textLight px-6 sm:px-10 py-3 sm:py-4 rounded-md font-medium text-base sm:text-lg hover:border-textGray/60 transition"
             >
               See How It Works
             </motion.button>
@@ -231,9 +232,9 @@ export default function Marketing() {
       </motion.section>
 
       {/* Stats Section */}
-      <section className="py-24 px-6 bg-darkBg/50 border-y border-gray-900">
+      <section className="py-16 sm:py-24 px-4 sm:px-6 bg-darkBg/50 border-y border-gray-900">
         <div className="container mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-12">
             {stats.map((stat, index) => (
               <motion.div
                 key={index}
@@ -243,10 +244,10 @@ export default function Marketing() {
                 viewport={{ once: true }}
                 className="text-center"
               >
-                <div className="text-5xl md:text-6xl font-light text-netflixRed mb-2">
+                <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light text-netflixRed mb-2">
                   {stat.number}
                 </div>
-                <div className="text-textGray text-sm uppercase tracking-wider">
+                <div className="text-textGray text-xs sm:text-sm uppercase tracking-wider">
                   {stat.label}
                 </div>
               </motion.div>
@@ -256,23 +257,23 @@ export default function Marketing() {
       </section>
 
       {/* Features Section */}
-      <section className="py-32 px-6">
+      <section className="py-16 sm:py-24 md:py-32 px-4 sm:px-6">
         <div className="container mx-auto max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-20"
+            className="text-center mb-12 sm:mb-20"
           >
-            <h2 className="text-5xl md:text-6xl font-light text-textLight mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light text-textLight mb-3 sm:mb-4">
               How it works
             </h2>
-            <p className="text-textGray text-lg">
+            <p className="text-textGray text-base sm:text-lg">
               Four simple steps to startup failure
             </p>
           </motion.div>
 
-          <div className="space-y-32">
+          <div className="space-y-16 sm:space-y-24 md:space-y-32">
             {features.map((feature, index) => (
               <motion.div
                 key={index}
@@ -280,25 +281,25 @@ export default function Marketing() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-100px" }}
                 transition={{ duration: 0.8 }}
-                className={`grid md:grid-cols-2 gap-12 items-center ${
+                className={`grid md:grid-cols-2 gap-8 sm:gap-12 items-center ${
                   index % 2 === 1 ? 'md:flex-row-reverse' : ''
                 }`}
               >
                 <div className={index % 2 === 1 ? 'md:order-2' : ''}>
-                  <div className="mb-4">
-                    <span className="text-netflixRed text-sm font-medium uppercase tracking-widest">
+                  <div className="mb-3 sm:mb-4">
+                    <span className="text-netflixRed text-xs sm:text-sm font-medium uppercase tracking-widest">
                       Step {index + 1}
                     </span>
                   </div>
-                  <h3 className="text-4xl font-light text-textLight mb-6">
+                  <h3 className="text-2xl sm:text-3xl md:text-4xl font-light text-textLight mb-4 sm:mb-6">
                     {feature.title}
                   </h3>
-                  <p className="text-textGray text-lg leading-relaxed">
+                  <p className="text-textGray text-base sm:text-lg leading-relaxed">
                     {feature.description}
                   </p>
                 </div>
 
-                <div className={`h-96 ${index % 2 === 1 ? 'md:order-1' : ''}`}>
+                <div className={`h-64 sm:h-80 md:h-96 ${index % 2 === 1 ? 'md:order-1' : ''}`}>
                   {feature.visual}
                 </div>
               </motion.div>
@@ -308,18 +309,18 @@ export default function Marketing() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-32 px-6 bg-darkBg/30">
+      <section className="py-16 sm:py-24 md:py-32 px-4 sm:px-6 bg-darkBg/30">
         <div className="container mx-auto max-w-6xl">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-5xl font-light text-textLight text-center mb-20"
+            className="text-3xl sm:text-4xl md:text-5xl font-light text-textLight text-center mb-12 sm:mb-20"
           >
             What founders are saying
           </motion.h2>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
             {testimonials.map((testimonial, index) => (
               <motion.div
                 key={index}
@@ -328,19 +329,19 @@ export default function Marketing() {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.2 }}
                 whileHover={{ y: -10 }}
-                className="bg-gradient-to-b from-cardBg to-darkBg border border-gray-800 rounded-lg p-8 hover:border-netflixRed/30 transition-all"
+                className="bg-gradient-to-b from-cardBg to-darkBg border border-gray-800 rounded-lg p-6 sm:p-8 hover:border-netflixRed/30 transition-all"
               >
-                <div className="mb-6">
-                  <svg className="w-8 h-8 text-netflixRed" fill="currentColor" viewBox="0 0 24 24">
+                <div className="mb-4 sm:mb-6">
+                  <svg className="w-6 h-6 sm:w-8 sm:h-8 text-netflixRed" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
                   </svg>
                 </div>
-                <p className="text-textLight text-lg mb-6 leading-relaxed">
+                <p className="text-textLight text-base sm:text-lg mb-4 sm:mb-6 leading-relaxed">
                   {testimonial.quote}
                 </p>
                 <div>
-                  <div className="text-textLight font-medium">{testimonial.author}</div>
-                  <div className="text-textGray text-sm">{testimonial.role}</div>
+                  <div className="text-textLight font-medium text-sm sm:text-base">{testimonial.author}</div>
+                  <div className="text-textGray text-xs sm:text-sm">{testimonial.role}</div>
                 </div>
               </motion.div>
             ))}
@@ -349,7 +350,7 @@ export default function Marketing() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-32 px-6 relative overflow-hidden">
+      <section className="py-16 sm:py-24 md:py-32 px-4 sm:px-6 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-black via-netflixRed/5 to-black" />
         
         <div className="container mx-auto text-center relative z-10 max-w-4xl">
@@ -357,7 +358,7 @@ export default function Marketing() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-5xl md:text-7xl font-light text-textLight mb-8"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-light text-textLight mb-6 sm:mb-8"
           >
             Ready to fail together?
           </motion.h2>
@@ -367,7 +368,7 @@ export default function Marketing() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="text-xl text-textGray mb-12"
+            className="text-base sm:text-lg md:text-xl text-textGray mb-8 sm:mb-12 px-4"
           >
             Join thousands of delusional founders building the wrong thing, together.
           </motion.p>
@@ -380,7 +381,7 @@ export default function Marketing() {
             whileHover={{ scale: 1.05, boxShadow: '0 0 40px rgba(229, 9, 20, 0.6)' }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/login')}
-            className="bg-netflixRed text-white px-12 py-5 rounded-md font-medium text-xl"
+            className="bg-netflixRed text-white px-8 sm:px-12 py-4 sm:py-5 rounded-md font-medium text-lg sm:text-xl"
           >
             Get Started for Free
           </motion.button>
@@ -388,14 +389,14 @@ export default function Marketing() {
       </section>
 
       {/* Footer */}
-      <footer className="py-16 px-6 border-t border-gray-900">
+      <footer className="py-12 sm:py-16 px-4 sm:px-6 border-t border-gray-900">
         <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-            <div className="text-textLight font-light text-2xl tracking-tight">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6 sm:gap-8">
+            <div className="text-textLight font-light text-xl sm:text-2xl tracking-tight">
               found<span className="text-netflixRed">r</span>ly
             </div>
 
-            <div className="flex gap-8 text-textGray text-sm">
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-8 text-textGray text-xs sm:text-sm">
               <a href="#" className="hover:text-textLight transition">About</a>
               <a href="#" className="hover:text-textLight transition">Terms</a>
               <a href="#" className="hover:text-textLight transition">Privacy</a>
@@ -403,7 +404,7 @@ export default function Marketing() {
             </div>
           </div>
 
-          <div className="text-center mt-12 text-textGray text-sm">
+          <div className="text-center mt-8 sm:mt-12 text-textGray text-xs sm:text-sm">
             © 2025 Foundrly. All wrongs reserved.
           </div>
         </div>

@@ -83,12 +83,12 @@ export default function Home() {
         animate={{ opacity: 1, x: 0 }}
         whileHover={{ opacity: 0.8 }}
         onClick={handleBack}
-        className="fixed top-6 left-6 z-50 text-textGray hover:text-textLight transition flex items-center gap-2"
+        className="fixed top-4 left-4 sm:top-6 sm:left-6 z-50 text-textGray hover:text-textLight transition flex items-center gap-2"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
         </svg>
-        <span className="font-light">Back</span>
+        <span className="font-light hidden sm:inline">Back</span>
       </motion.button>
 
       {/* Subtle Background */}
@@ -104,9 +104,9 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="mb-12"
+          className="mb-8 md:mb-12"
         >
-          <h1 className="text-7xl md:text-8xl font-light tracking-tighter text-textLight text-center">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-light tracking-tighter text-textLight text-center">
             found<span className="text-netflixRed">r</span>ly
           </h1>
         </motion.div>
@@ -116,7 +116,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="text-xl text-textGray mb-16 text-center max-w-md font-light"
+          className="text-base sm:text-lg md:text-xl text-textGray mb-8 md:mb-16 text-center max-w-md mx-auto px-4 font-light"
         >
           Find your cofounder for the next dumb unicorn
         </motion.p>
@@ -126,7 +126,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-darkBg/50 backdrop-blur-xl rounded-lg border border-gray-900 p-8 max-w-md w-full"
+          className="bg-darkBg/50 backdrop-blur-xl rounded-lg border border-gray-900 p-6 sm:p-8 max-w-md w-full mx-4"
         >
           <div className="space-y-4">
             {/* Google Login */}

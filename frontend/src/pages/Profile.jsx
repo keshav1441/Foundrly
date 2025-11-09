@@ -145,14 +145,14 @@ export default function Profile() {
         </div>
 
         {/* Content Overlay */}
-        <div className="relative z-10 h-full flex flex-col justify-end container mx-auto px-6 pb-8">
+        <div className="relative z-10 h-full flex flex-col justify-end container mx-auto px-4 sm:px-6 pb-6 sm:pb-8">
           <div className="max-w-4xl">
             {/* User Name */}
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="text-6xl md:text-8xl font-light text-textLight mb-6 tracking-tight"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-light text-textLight mb-4 sm:mb-6 tracking-tight"
             >
               {user.name}
             </motion.h1>
@@ -162,7 +162,7 @@ export default function Profile() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="text-textLight text-lg md:text-xl mb-6 max-w-3xl leading-relaxed font-light"
+              className="text-textLight text-base sm:text-lg md:text-xl mb-4 sm:mb-6 max-w-3xl leading-relaxed font-light"
             >
               {user.bio || 'No bio yet'}
             </motion.p>
@@ -223,7 +223,7 @@ export default function Profile() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="flex items-center gap-4"
+              className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4"
             >
               {isOwnProfile ? (
                 <>
@@ -231,15 +231,15 @@ export default function Profile() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setEditing(true)}
-                    className="bg-netflixRed text-white px-8 py-3 rounded-md font-medium"
+                    className="bg-netflixRed text-white px-6 sm:px-8 py-3 rounded-md font-medium text-sm sm:text-base"
                   >
                     Edit Profile
                   </motion.button>
-                  <Link to="/my-ideas">
+                  <Link to="/my-ideas" className="flex-1 sm:flex-initial">
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="bg-transparent border border-textGray/30 text-textLight px-8 py-3 rounded-md font-medium hover:border-textGray/60 transition"
+                      className="w-full sm:w-auto bg-transparent border border-textGray/30 text-textLight px-6 sm:px-8 py-3 rounded-md font-medium hover:border-textGray/60 transition text-sm sm:text-base"
                     >
                       My Ideas
                     </motion.button>
@@ -250,7 +250,7 @@ export default function Profile() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleMessage}
-                  className="bg-netflixRed text-white px-8 py-3 rounded-md font-medium"
+                  className="bg-netflixRed text-white px-6 sm:px-8 py-3 rounded-md font-medium text-sm sm:text-base"
                 >
                   Message
                 </motion.button>
@@ -275,9 +275,9 @@ export default function Profile() {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             onClick={(e) => e.stopPropagation()}
-            className="bg-darkBg rounded-lg p-8 max-w-2xl w-full border border-gray-900 my-8 max-h-[90vh] flex flex-col"
+            className="bg-darkBg rounded-lg p-4 sm:p-6 md:p-8 max-w-2xl w-full border border-gray-900 my-4 sm:my-8 max-h-[90vh] flex flex-col mx-4"
           >
-            <h2 className="text-3xl font-light text-textLight mb-6 flex-shrink-0">Edit profile</h2>
+            <h2 className="text-2xl sm:text-3xl font-light text-textLight mb-4 sm:mb-6 flex-shrink-0">Edit profile</h2>
             <form onSubmit={handleSave} className="space-y-4 overflow-y-auto flex-1 min-h-0 pr-2">
               <div>
                 <label className="block text-textLight font-light mb-2">Name</label>

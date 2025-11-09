@@ -69,18 +69,18 @@ export default function Requests() {
   const rejectedRequests = requests.filter((r) => r.status === "rejected");
 
   return (
-    <div className="min-h-screen bg-black pt-20 pb-12 px-4">
+    <div className="min-h-screen bg-black pt-16 md:pt-20 pb-12 px-4">
       <div className="container mx-auto max-w-3xl">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-12"
+          className="mb-8 md:mb-12"
         >
-          <h1 className="text-4xl font-light text-textLight mb-2 tracking-tight">
+          <h1 className="text-3xl sm:text-4xl font-light text-textLight mb-2 tracking-tight">
             Requests
           </h1>
-          <p className="text-textGray font-light">
+          <p className="text-sm sm:text-base text-textGray font-light">
             People interested in your ideas
           </p>
         </motion.div>
@@ -98,9 +98,9 @@ export default function Requests() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="bg-darkBg/50 backdrop-blur-xl rounded-lg border border-gray-900 p-6"
+                  className="bg-darkBg/50 backdrop-blur-xl rounded-lg border border-gray-900 p-4 sm:p-6"
                 >
-                  <div className="flex items-start gap-4 mb-4">
+                  <div className="flex items-start gap-3 sm:gap-4 mb-4">
                     <Link
                       to={`/profile/${request.requester?._id}`}
                       className="flex-shrink-0 hover:opacity-80 transition"
@@ -138,12 +138,12 @@ export default function Requests() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-3">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => handleAccept(request._id)}
-                      className="flex-1 bg-green-600 text-white py-2.5 rounded-md font-medium hover:bg-green-700 transition"
+                      className="flex-1 bg-green-600 text-white py-2.5 rounded-md font-medium hover:bg-green-700 transition text-sm sm:text-base"
                     >
                       Accept
                     </motion.button>
@@ -151,7 +151,7 @@ export default function Requests() {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => handleReject(request._id)}
-                      className="flex-1 bg-black/50 border border-gray-800 text-textGray py-2.5 rounded-md font-medium hover:bg-black/70 hover:text-textLight transition"
+                      className="flex-1 bg-black/50 border border-gray-800 text-textGray py-2.5 rounded-md font-medium hover:bg-black/70 hover:text-textLight transition text-sm sm:text-base"
                     >
                       Reject
                     </motion.button>
@@ -175,9 +175,9 @@ export default function Requests() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="bg-darkBg/50 backdrop-blur-xl rounded-lg border border-green-900/30 p-6"
+                  className="bg-darkBg/50 backdrop-blur-xl rounded-lg border border-green-900/30 p-4 sm:p-6"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4">
                     <Link
                       to={`/profile/${request.requester?._id}`}
                       className="flex-shrink-0 hover:opacity-80 transition"
@@ -201,7 +201,7 @@ export default function Requests() {
                     </div>
                     <Link
                       to="/chat"
-                      className="text-netflixRed text-sm font-medium hover:underline"
+                      className="text-netflixRed text-xs sm:text-sm font-medium hover:underline flex-shrink-0"
                     >
                       View Match
                     </Link>
@@ -225,9 +225,9 @@ export default function Requests() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="bg-darkBg/30 backdrop-blur-xl rounded-lg border border-gray-900/50 p-6 opacity-60"
+                  className="bg-darkBg/30 backdrop-blur-xl rounded-lg border border-gray-900/50 p-4 sm:p-6 opacity-60"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4">
                     <div className="flex-shrink-0">
                       <Avatar
                         src={request.requester?.avatar}

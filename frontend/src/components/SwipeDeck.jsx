@@ -465,7 +465,7 @@ const SwipeDeck = forwardRef(function SwipeDeck({ onIdeaClick, ...props }, ref) 
 
       {/* Bottom Buttons - Mobile/Tablet only */}
       {!isLaptop && (
-        <div className="flex items-center justify-center gap-6 mt-4 flex-shrink-0">
+        <div className="flex items-center justify-center gap-6 mt-4 mb-6 sm:mb-8 flex-shrink-0">
           <motion.button
             animate={{
               scale: clickedButton === 'left' ? [1, 1.3, 1] : 1,
@@ -498,19 +498,6 @@ const SwipeDeck = forwardRef(function SwipeDeck({ onIdeaClick, ...props }, ref) 
             </svg>
           </motion.button>
         </div>
-      )}
-
-
-      {/* Swipe Hint - Mobile only */}
-      {!isLaptop && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="text-center mt-2 pb-6 flex-shrink-0 text-textGray text-sm font-light"
-        >
-          Swipe or tap buttons
-        </motion.div>
       )}
 
       {/* Request Message Modal */}
