@@ -12,11 +12,19 @@ import Profile from './pages/Profile';
 import MyIdeas from './pages/MyIdeas';
 import AuthCallback from './pages/AuthCallback';
 import ProtectedRoute from './components/ProtectedRoute';
+import PublicRoute from './components/PublicRoute';
 
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Marketing />} />
+      <Route 
+        path="/" 
+        element={
+          <PublicRoute>
+            <Marketing />
+          </PublicRoute>
+        } 
+      />
       <Route path="/login" element={<Home />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route
