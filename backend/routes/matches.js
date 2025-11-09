@@ -1,9 +1,9 @@
-import express from 'express';
-import Match from '../models/Match.js';
-import Swipe from '../models/Swipe.js';
-import Idea from '../models/Idea.js';
-import Message from '../models/Message.js';
-import { authenticateJWT } from '../middleware/auth.js';
+import express from "express";
+import Match from "../models/Match.js";
+import Swipe from "../models/Swipe.js";
+import Idea from "../models/Idea.js";
+import Message from "../models/Message.js";
+import { authenticateJWT } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -19,7 +19,7 @@ function getIO() {
 }
 
 // Swipe on an idea
-router.post('/swipe', authenticateJWT, async (req, res) => {
+router.post("/swipe", authenticateJWT, async (req, res) => {
   try {
     const { ideaId, direction } = req.body;
     const userId = req.user.sub;
@@ -38,74 +38,142 @@ router.post('/swipe', authenticateJWT, async (req, res) => {
     });
 
     // Update idea swipe counts
-    if (direction === 'right') {
+    if (direction === "right") {
       await Idea.findByIdAndUpdate(ideaId, { $inc: { swipeRightCount: 1 } });
     } else {
       await Idea.findByIdAndUpdate(ideaId, { $inc: { swipeLeftCount: 1 } });
     }
 
-    if (direction === 'right') {
-      // Check if another user already swiped right on this idea
+    if (direction === "right") {
+      // Get the idea to find the submitter
+      const idea = await Idea.findById(ideaId);
+      let matchCreated = false;
+      let populatedMatch = null;
+
+      // If someone likes my idea, create a match with them
+      if (idea && idea.submittedBy && idea.submittedBy.toString() !== userId) {
+        const ideaSubmitter = idea.submittedBy;
+
+        // Check if match already exists
+        const existingMatch = await Match.findOne({
+          idea: ideaId,
+          $or: [
+            { user1: userId, user2: ideaSubmitter },
+            { user1: ideaSubmitter, user2: userId },
+          ],
+        });
+
+        if (!existingMatch) {
+          // Create a match between the liker and the idea submitter
+          const match = await Match.create({
+            user1: userId,
+            user2: ideaSubmitter,
+            idea: ideaId,
+          });
+
+          // Populate match for notifications
+          populatedMatch = await Match.findById(match._id)
+            .populate("user1", "name avatar")
+            .populate("user2", "name avatar")
+            .populate("idea", "name oneLiner");
+
+          // Notify both users via socket
+          const io = getIO();
+          if (io) {
+            const chatNamespace = io.of("/chat");
+            chatNamespace
+              .to(`user:${userId}`)
+              .emit("match_notification", populatedMatch);
+            chatNamespace
+              .to(`user:${ideaSubmitter.toString()}`)
+              .emit("match_notification", populatedMatch);
+          }
+
+          matchCreated = true;
+        }
+      }
+
+      // Also check if another user already swiped right on this idea (existing logic)
+      // This creates matches when two users both like the same idea
       const otherRightSwipe = await Swipe.findOne({
         idea: ideaId,
         user: { $ne: userId },
-        direction: 'right',
+        direction: "right",
       });
 
       if (otherRightSwipe) {
-        // Create a match
-        const match = await Match.create({
-          user1: userId,
-          user2: otherRightSwipe.user,
+        // Check if match already exists
+        const existingMatch = await Match.findOne({
           idea: ideaId,
+          $or: [
+            { user1: userId, user2: otherRightSwipe.user },
+            { user1: otherRightSwipe.user, user2: userId },
+          ],
         });
 
-        // Populate match for notifications
-        const populatedMatch = await Match.findById(match._id)
-          .populate('user1', 'name avatar')
-          .populate('user2', 'name avatar')
-          .populate('idea', 'name oneLiner');
+        if (!existingMatch) {
+          // Create a match
+          const match = await Match.create({
+            user1: userId,
+            user2: otherRightSwipe.user,
+            idea: ideaId,
+          });
 
-        // Notify both users via socket
-        const io = getIO();
-        if (io) {
-          const chatNamespace = io.of('/chat');
-          chatNamespace.to(`user:${userId}`).emit('match_notification', populatedMatch);
-          chatNamespace.to(`user:${otherRightSwipe.user.toString()}`).emit('match_notification', populatedMatch);
+          // Populate match for notifications
+          populatedMatch = await Match.findById(match._id)
+            .populate("user1", "name avatar")
+            .populate("user2", "name avatar")
+            .populate("idea", "name oneLiner");
+
+          // Notify both users via socket
+          const io = getIO();
+          if (io) {
+            const chatNamespace = io.of("/chat");
+            chatNamespace
+              .to(`user:${userId}`)
+              .emit("match_notification", populatedMatch);
+            chatNamespace
+              .to(`user:${otherRightSwipe.user.toString()}`)
+              .emit("match_notification", populatedMatch);
+          }
+
+          matchCreated = true;
         }
+      }
 
+      if (matchCreated && populatedMatch) {
         return res.json({ match: populatedMatch });
       }
     }
 
     res.json({});
   } catch (error) {
-    console.error('Swipe error:', error);
-    res.status(500).json({ error: 'Failed to swipe' });
+    console.error("Swipe error:", error);
+    res.status(500).json({ error: "Failed to swipe" });
   }
 });
 
 // Get user matches
-router.get('/matches', authenticateJWT, async (req, res) => {
+router.get("/matches", authenticateJWT, async (req, res) => {
   try {
     const userId = req.user.sub;
     const matches = await Match.find({
       $or: [{ user1: userId }, { user2: userId }],
     })
-      .populate('user1', 'name avatar role')
-      .populate('user2', 'name avatar role')
-      .populate('idea', 'name oneLiner')
+      .populate("user1", "name avatar role")
+      .populate("user2", "name avatar role")
+      .populate("idea", "name oneLiner")
       .sort({ createdAt: -1 });
 
     // Get last message for each match
     const matchesWithLastMessage = await Promise.all(
       matches.map(async (match) => {
         const lastMessage = await Message.findOne({ match: match._id })
-          .populate('sender', 'name avatar')
+          .populate("sender", "name avatar")
           .sort({ createdAt: -1 })
           .limit(1)
           .lean();
-        
+
         const matchObj = match.toObject();
         matchObj.lastMessage = lastMessage || null;
         // Add a sort timestamp for ordering (use last message time or match creation time)
@@ -123,35 +191,37 @@ router.get('/matches', authenticateJWT, async (req, res) => {
 
     res.json(matchesWithLastMessage);
   } catch (error) {
-    console.error('Get matches error:', error);
-    res.status(500).json({ error: 'Failed to get matches' });
+    console.error("Get matches error:", error);
+    res.status(500).json({ error: "Failed to get matches" });
   }
 });
 
 // Get match by ID
-router.get('/matches/:id', authenticateJWT, async (req, res) => {
+router.get("/matches/:id", authenticateJWT, async (req, res) => {
   try {
     const userId = req.user.sub;
     const match = await Match.findById(req.params.id)
-      .populate('user1', 'name avatar role')
-      .populate('user2', 'name avatar role')
-      .populate('idea', 'name oneLiner');
+      .populate("user1", "name avatar role")
+      .populate("user2", "name avatar role")
+      .populate("idea", "name oneLiner");
 
     if (!match) {
-      return res.status(404).json({ error: 'Match not found' });
+      return res.status(404).json({ error: "Match not found" });
     }
 
     // Verify user is part of this match
-    if (match.user1._id.toString() !== userId && match.user2._id.toString() !== userId) {
-      return res.status(403).json({ error: 'Unauthorized' });
+    if (
+      match.user1._id.toString() !== userId &&
+      match.user2._id.toString() !== userId
+    ) {
+      return res.status(403).json({ error: "Unauthorized" });
     }
 
     res.json(match);
   } catch (error) {
-    console.error('Get match error:', error);
-    res.status(500).json({ error: 'Failed to get match' });
+    console.error("Get match error:", error);
+    res.status(500).json({ error: "Failed to get match" });
   }
 });
 
 export default router;
-
