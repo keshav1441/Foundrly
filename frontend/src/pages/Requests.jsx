@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
 import { api } from "../api/api";
+import Avatar from "../components/Avatar";
 
 export default function Requests() {
   const { user } = useAuth();
@@ -102,15 +103,12 @@ export default function Requests() {
                   <div className="flex items-start gap-4 mb-4">
                     <Link
                       to={`/profile/${request.requester?._id}`}
-                      className="w-12 h-12 rounded-full overflow-hidden bg-gray-800 flex-shrink-0 hover:opacity-80 transition"
+                      className="flex-shrink-0 hover:opacity-80 transition"
                     >
-                      <img
-                        src={
-                          request.requester?.avatar ||
-                          `https://ui-avatars.com/api/?name=${request.requester?.name}`
-                        }
-                        alt={request.requester?.name}
-                        className="w-full h-full object-cover"
+                      <Avatar
+                        src={request.requester?.avatar}
+                        name={request.requester?.name}
+                        size="md"
                       />
                     </Link>
                     <div className="flex-1 min-w-0">
@@ -182,15 +180,12 @@ export default function Requests() {
                   <div className="flex items-center gap-4">
                     <Link
                       to={`/profile/${request.requester?._id}`}
-                      className="w-12 h-12 rounded-full overflow-hidden bg-gray-800 flex-shrink-0 hover:opacity-80 transition"
+                      className="flex-shrink-0 hover:opacity-80 transition"
                     >
-                      <img
-                        src={
-                          request.requester?.avatar ||
-                          `https://ui-avatars.com/api/?name=${request.requester?.name}`
-                        }
-                        alt={request.requester?.name}
-                        className="w-full h-full object-cover"
+                      <Avatar
+                        src={request.requester?.avatar}
+                        name={request.requester?.name}
+                        size="md"
                       />
                     </Link>
                     <div className="flex-1">
@@ -233,14 +228,11 @@ export default function Requests() {
                   className="bg-darkBg/30 backdrop-blur-xl rounded-lg border border-gray-900/50 p-6 opacity-60"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-800 flex-shrink-0">
-                      <img
-                        src={
-                          request.requester?.avatar ||
-                          `https://ui-avatars.com/api/?name=${request.requester?.name}`
-                        }
-                        alt={request.requester?.name}
-                        className="w-full h-full object-cover"
+                    <div className="flex-shrink-0">
+                      <Avatar
+                        src={request.requester?.avatar}
+                        name={request.requester?.name}
+                        size="md"
                       />
                     </div>
                     <div className="flex-1">

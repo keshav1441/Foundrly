@@ -26,15 +26,6 @@ export const api = {
   markMessagesRead: (matchId) =>
     axios.post(`${API_BASE_URL}/chat/${matchId}/messages/read`),
 
-  // Memes
-  getMemes: (params = {}) => axios.get(`${API_BASE_URL}/memes`, { params }),
-  createMeme: (data) => axios.post(`${API_BASE_URL}/memes`, data),
-  upvoteMeme: (id) => axios.post(`${API_BASE_URL}/memes/${id}/upvote`),
-  getComments: (memeId) =>
-    axios.get(`${API_BASE_URL}/memes/${memeId}/comments`),
-  createComment: (memeId, content) =>
-    axios.post(`${API_BASE_URL}/memes/${memeId}/comments`, { content }),
-
   // Users
   getUser: (id) => axios.get(`${API_BASE_URL}/users/${id}`),
   updateUser: (id, data) => axios.put(`${API_BASE_URL}/users/${id}`, data),

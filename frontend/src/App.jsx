@@ -8,7 +8,6 @@ import SwipePage from './pages/SwipePage';
 import Matches from './pages/Matches';
 import Requests from './pages/Requests';
 import Chat from './pages/Chat';
-import Feed from './pages/Feed';
 import Profile from './pages/Profile';
 import AuthCallback from './pages/AuthCallback';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -48,14 +47,6 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Chat />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/feed"
-        element={
-          <ProtectedRoute>
-            <Feed />
           </ProtectedRoute>
         }
       />

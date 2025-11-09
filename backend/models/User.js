@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
@@ -8,10 +8,12 @@ const userSchema = new mongoose.Schema(
     avatar: String,
     role: {
       type: String,
-      enum: ['Visionary', 'Code', 'Marketing', 'Fundless VC'],
-      default: 'Visionary',
+      enum: ["Visionary", "Code", "Marketing", "Fundless VC"],
+      default: "Visionary",
     },
     bio: String,
+    linkedinUrl: String,
+    interests: [String],
     googleId: String,
     githubId: String,
     linkedinId: String,
@@ -20,5 +22,4 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.model('User', userSchema);
-
+export default mongoose.model("User", userSchema);

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useImperativeHandle, forwardRef } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { api } from '../api/api';
 import RequestMessageModal from './RequestMessageModal';
 
@@ -445,9 +446,13 @@ const SwipeDeck = forwardRef(function SwipeDeck({ onIdeaClick, ...props }, ref) 
                     {currentIdea.submittedBy && (
                       <div className="flex items-center gap-2">
                         <span className="text-textGray/60">by</span>
-                        <span className="text-textLight font-medium">
+                        <Link
+                          to={`/profile/${currentIdea.submittedBy._id}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-textLight font-medium hover:text-netflixRed transition"
+                        >
                           {currentIdea.submittedBy.name || 'Anonymous'}
-                        </span>
+                        </Link>
                       </div>
                     )}
                   </div>

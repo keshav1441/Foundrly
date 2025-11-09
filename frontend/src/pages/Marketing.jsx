@@ -228,15 +228,6 @@ export default function Marketing() {
             </motion.button>
           </motion.div>
         </div>
-
-        {/* Scroll indicator */}
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
-        >
-          <div className="w-[1px] h-16 bg-gradient-to-b from-netflixRed/0 via-netflixRed to-netflixRed/0" />
-        </motion.div>
       </motion.section>
 
       {/* Stats Section */}

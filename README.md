@@ -2,7 +2,7 @@
 
 **Swipe Right on Bad Startup Ideas**
 
-Foundrly is a Netflix-inspired swipe-based matching app for founders with terrible startup ideas. Swipe through ideas, send requests to idea creators, match when requests are accepted, and chat in real-time. Includes an AI-powered idea generator, meme feed, and a cinematic dark theme.
+Foundrly is a Tinder-inspired swipe-based matching app for founders with terrible startup ideas. Swipe through ideas, send requests to idea creators, match when requests are accepted, and chat in real-time. Includes an AI-powered idea generator and a cinematic dark theme.
 
 ## 🚀 Features
 
@@ -13,7 +13,6 @@ Foundrly is a Netflix-inspired swipe-based matching app for founders with terrib
 - **Real-time Chat** - Socket.io-powered chat with split-screen UI (matches list + active chat)
 - **Notifications System** - Real-time notifications for incoming requests and messages with mark-as-read functionality
 - **AI Idea Generator** - OpenAI/Gemini integration to generate hilariously bad startup ideas
-- **Feed** - Submit and upvote posts with title and description
 - **User Profiles** - Netflix-style profile pages with idea carousels
 - **Responsive Design** - Works on mobile, tablet, and desktop
 
@@ -22,8 +21,8 @@ Foundrly is a Netflix-inspired swipe-based matching app for founders with terrib
 ```
 foundrly/
 ├── backend/          # Express.js backend API
-│   ├── models/       # MongoDB models (User, Idea, Match, Swipe, Message, Meme, Request, Comment)
-│   ├── routes/       # API routes (auth, users, ideas, matches, chat, ai, memes, requests, notifications)
+│   ├── models/       # MongoDB models (User, Idea, Match, Swipe, Message, Request)
+│   ├── routes/       # API routes (auth, users, ideas, matches, chat, ai, requests, notifications)
 │   ├── middleware/   # Auth middleware
 │   ├── socket/       # Socket.io handlers
 │   ├── scripts/     # Utility scripts (clearData.js)
@@ -31,7 +30,7 @@ foundrly/
 │   └── package.json
 ├── frontend/         # React frontend
 │   ├── src/
-│   │   ├── pages/    # Page components (Marketing, Home, SwipePage, Chat, Feed, Profile, Requests)
+│   │   ├── pages/    # Page components (Marketing, Home, SwipePage, Chat, Profile, Requests)
 │   │   ├── components/ # Reusable components (SwipeDeck, Navbar, RequestMessageModal, Notifications, etc.)
 │   │   ├── contexts/ # React contexts (Auth, Toast)
 │   │   └── api/      # API client
@@ -181,13 +180,7 @@ The frontend will run on `http://localhost:3000`
    - Mark individual notifications as read or mark all as read
    - Only unread notifications are displayed
 
-7. **Feed**:
-
-   - Browse memes (randomized order)
-   - Submit memes with title and description
-   - Upvote and comment on memes
-
-8. **Profile**:
+7. **Profile**:
    - View your profile or other users' profiles
    - See ideas you've worked on in a carousel
    - Edit your own profile
@@ -252,15 +245,6 @@ The frontend will run on `http://localhost:3000`
 - `POST /api/chat/:matchId/messages/read` - Mark all messages in a match as read (requires authentication)
 - Socket.io namespace: `/chat`
 - Socket.io events: `join`, `message`, `joined`, `match_notification`
-
-### Memes
-
-- `GET /api/memes` - List memes (sorted by upvotes, most recent first)
-  - Query params: `limit` (number)
-- `POST /api/memes` - Submit meme with title and description (requires authentication)
-- `POST /api/memes/:id/upvote` - Upvote a meme (requires authentication)
-- `GET /api/memes/:id/comments` - Get comments for a meme
-- `POST /api/memes/:id/comments` - Add comment to a meme (requires authentication)
 
 ### AI
 

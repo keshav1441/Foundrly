@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import { useState, useEffect, useRef } from 'react';
 import Notifications from './Notifications';
+import Avatar from './Avatar';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -152,9 +153,6 @@ export default function Navbar() {
             <NavLink to="/requests" isActive={isActive('/requests')}>
               Requests
             </NavLink>
-            <NavLink to="/feed" isActive={isActive('/feed')}>
-              Feed
-            </NavLink>
 
             {/* Notifications Icon */}
             <div className="relative">
@@ -200,12 +198,12 @@ export default function Navbar() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowDropdown(!showDropdown)}
-                className="w-10 h-10 rounded-full overflow-hidden border border-netflixRed/30 hover:border-netflixRed transition cursor-pointer"
+                className="border border-netflixRed/30 hover:border-netflixRed transition cursor-pointer rounded-full overflow-hidden"
               >
-                <img
-                  src={user.avatar || `https://ui-avatars.com/api/?name=${user.name}`}
-                  alt={user.name}
-                  className="w-full h-full object-cover"
+                <Avatar
+                  src={user.avatar}
+                  name={user.name}
+                  size="sm"
                 />
               </motion.button>
 

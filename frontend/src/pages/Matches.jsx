@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../api/api';
+import Avatar from '../components/Avatar';
 
 export default function Matches() {
   const { user } = useAuth();
@@ -92,11 +93,11 @@ export default function Matches() {
                     <div className="bg-darkBg/50 backdrop-blur-xl rounded-lg overflow-hidden border border-gray-900 hover:border-gray-800 transition-all group">
                       <div className="relative h-48 bg-gradient-to-br from-black via-darkBg to-black flex items-center justify-center overflow-hidden">
                         <div className="absolute inset-0 bg-netflixRed/5" />
-                        <div className="relative z-10 w-24 h-24 rounded-full overflow-hidden border-2 border-netflixRed/30 group-hover:border-netflixRed transition">
-                          <img
-                            src={otherUser.avatar || `https://ui-avatars.com/api/?name=${otherUser.name}`}
-                            alt={otherUser.name}
-                            className="w-full h-full object-cover"
+                        <div className="relative z-10 border-2 border-netflixRed/30 group-hover:border-netflixRed transition rounded-full overflow-hidden">
+                          <Avatar
+                            src={otherUser.avatar}
+                            name={otherUser.name}
+                            size="lg"
                           />
                         </div>
                       </div>
@@ -105,9 +106,46 @@ export default function Matches() {
                         <h3 className="text-xl font-light text-textLight mb-1 group-hover:text-netflixRed transition">
                           {otherUser.name}
                         </h3>
-                        <p className="text-textGray text-sm mb-4 font-light">
+                        <p className="text-textGray text-sm mb-2 font-light">
                           {otherUser.role || 'Founder'}
                         </p>
+
+                        {/* LinkedIn & Interests */}
+                        {otherUser.linkedinUrl && (
+                          <div className="mb-2">
+                            <a
+                              href={otherUser.linkedinUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-netflixRed hover:text-netflixRed/80 transition font-light flex items-center gap-1 text-xs"
+                            >
+                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                              </svg>
+                              LinkedIn
+                            </a>
+                          </div>
+                        )}
+                        {otherUser.interests && otherUser.interests.length > 0 && (
+                          <div className="mb-3">
+                            <div className="flex flex-wrap gap-1">
+                              {otherUser.interests.slice(0, 3).map((interest, idx) => (
+                                <span
+                                  key={idx}
+                                  className="px-2 py-0.5 bg-netflixRed/10 border border-netflixRed/30 rounded-full text-textLight text-xs font-light"
+                                >
+                                  {interest}
+                                </span>
+                              ))}
+                              {otherUser.interests.length > 3 && (
+                                <span className="px-2 py-0.5 text-textGray text-xs font-light">
+                                  +{otherUser.interests.length - 3}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
 
                         {match.idea && (
                           <div className="mb-4">

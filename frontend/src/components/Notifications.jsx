@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../api/api';
 import { useAuth } from '../contexts/AuthContext';
 import { io } from 'socket.io-client';
+import Avatar from './Avatar';
 
 export default function Notifications({ isOpen, onClose, onNotificationsChange }) {
   const { user } = useAuth();
@@ -279,11 +280,11 @@ export default function Notifications({ isOpen, onClose, onNotificationsChange }
                           </>
                         ) : (
                           <>
-                            <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
-                              <img
-                                src={notification.data.sender?.avatar || `https://ui-avatars.com/api/?name=${notification.data.sender?.name}`}
-                                alt={notification.data.sender?.name}
-                                className="w-full h-full object-cover"
+                            <div className="flex-shrink-0">
+                              <Avatar
+                                src={notification.data.sender?.avatar}
+                                name={notification.data.sender?.name}
+                                size="md"
                               />
                             </div>
                             <div

@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { api } from '../api/api';
 import { io } from 'socket.io-client';
+import Avatar from '../components/Avatar';
 
 export default function Chat() {
   const { matchId: urlMatchId } = useParams();
@@ -319,14 +320,20 @@ export default function Chat() {
                       isSelected ? 'bg-netflixRed/20 border-l-4 border-netflixRed' : 'hover:bg-darkBg/50'
                     }`}
                   >
-                     <div className="flex items-start gap-3">
-                       {/* Avatar */}
-                       <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
-                         <img
-                           src={other?.avatar || `https://ui-avatars.com/api/?name=${other?.name}`}
-                           alt={other?.name}
-                           className="w-full h-full object-cover"
+                     <div className="flex items-center gap-3">
+                       {/* Only show the other person's avatar */}
+                       <div className="relative flex-shrink-0">
+                         <Avatar
+                           src={other?.avatar}
+                           name={other?.name || 'Unknown User'}
+                           size="md"
                          />
+                         {/* Chat icon badge */}
+                         <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-netflixRed rounded-full border-2 border-darkBg flex items-center justify-center">
+                           <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                           </svg>
+                         </div>
                        </div>
 
                        {/* Idea Title and Person Name */}

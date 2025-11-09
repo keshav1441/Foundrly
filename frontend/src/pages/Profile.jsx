@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { api } from '../api/api';
 import IdeaDetailModal from '../components/IdeaDetailModal';
+import Avatar from '../components/Avatar';
 
 export default function Profile() {
   const { userId } = useParams();
@@ -22,6 +23,8 @@ export default function Profile() {
     bio: '',
     role: '',
     avatar: '',
+    linkedinUrl: '',
+    interests: [],
   });
   const ideasSectionRef = useRef(null);
 
@@ -41,9 +44,13 @@ export default function Profile() {
         const userResponse = await api.getUser(targetUserId);
         setUser(userResponse.data);
         
-        // Get user's ideas
-        const ideasResponse = await api.getUserIdeas(targetUserId);
-        setIdeas(ideasResponse.data);
+        // Only get user's ideas if viewing own profile
+        if (isOwnProfile) {
+          const ideasResponse = await api.getUserIdeas(targetUserId);
+          setIdeas(ideasResponse.data);
+        } else {
+          setIdeas([]); // Clear ideas for other users
+        }
         
         // Set form data if own profile
         if (isOwnProfile) {
@@ -52,6 +59,8 @@ export default function Profile() {
             bio: userResponse.data.bio || '',
             role: userResponse.data.role || 'Visionary',
             avatar: userResponse.data.avatar || '',
+            linkedinUrl: userResponse.data.linkedinUrl || '',
+            interests: userResponse.data.interests || [],
           });
         }
       }
@@ -124,15 +133,14 @@ export default function Profile() {
           </div>
           
           {/* User Avatar as Background Element */}
-          {user.avatar && (
-            <div className="absolute inset-0 opacity-10">
-              <img
-                src={user.avatar}
-                alt={user.name}
-                className="w-full h-full object-cover blur-3xl scale-150"
-              />
-            </div>
-          )}
+          <div className="absolute inset-0 opacity-10">
+            <Avatar
+              src={user.avatar}
+              name={user.name}
+              className="w-full h-full object-cover blur-3xl scale-150"
+              size="xl"
+            />
+          </div>
         </div>
 
         {/* Content Overlay */}
@@ -163,10 +171,51 @@ export default function Profile() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="text-textGray mb-8 text-lg font-light"
+              className="text-textGray mb-4 text-lg font-light"
             >
-              {new Date().getFullYear()} • {user.role || 'Visionary'} • {ideas.length} Ideas
+              {new Date().getFullYear()} • {user.role || 'Visionary'}{isOwnProfile && ` • ${ideas.length} Ideas`}
             </motion.div>
+
+            {/* LinkedIn & Interests */}
+            {(user.linkedinUrl || (user.interests && user.interests.length > 0)) && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.45 }}
+                className="mb-8"
+              >
+                {user.linkedinUrl && (
+                  <div className="mb-3">
+                    <a
+                      href={user.linkedinUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-netflixRed hover:text-netflixRed/80 transition font-light flex items-center gap-2"
+                    >
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                      </svg>
+                      LinkedIn Profile
+                    </a>
+                  </div>
+                )}
+                {user.interests && user.interests.length > 0 && (
+                  <div>
+                    <p className="text-textGray text-sm mb-2 font-light">Interests</p>
+                    <div className="flex flex-wrap gap-2">
+                      {user.interests.map((interest, index) => (
+                        <span
+                          key={index}
+                          className="px-3 py-1 bg-netflixRed/10 border border-netflixRed/30 rounded-full text-textLight text-sm font-light"
+                        >
+                          {interest}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            )}
 
             {/* Action Buttons */}
             <motion.div
@@ -209,16 +258,17 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Ideas Section */}
-      <div ref={ideasSectionRef} className="container mx-auto px-6 mt-8 scroll-mt-20">
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-3xl font-light text-textLight mb-6"
-        >
-          {isOwnProfile ? 'Your ideas' : `${user.name}'s ideas`}
-        </motion.h2>
+      {/* Ideas Section - Only show for own profile */}
+      {isOwnProfile && (
+        <div ref={ideasSectionRef} className="container mx-auto px-6 mt-8 scroll-mt-20">
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-3xl font-light text-textLight mb-6"
+          >
+            Your ideas
+          </motion.h2>
 
         {ideas.length === 0 ? (
           <motion.div
@@ -305,7 +355,8 @@ export default function Profile() {
             </div>
           </div>
         )}
-      </div>
+        </div>
+      )}
 
       {/* Edit Modal */}
       {editing && (
@@ -364,6 +415,33 @@ export default function Profile() {
                   onChange={(e) => setFormData({ ...formData, avatar: e.target.value })}
                   className="w-full bg-black border border-gray-800 rounded-md px-4 py-3 text-textLight focus:outline-none focus:border-netflixRed/50 transition font-light"
                 />
+              </div>
+              <div>
+                <label className="block text-textLight font-light mb-2">LinkedIn URL</label>
+                <input
+                  type="url"
+                  value={formData.linkedinUrl}
+                  onChange={(e) => setFormData({ ...formData, linkedinUrl: e.target.value })}
+                  placeholder="https://linkedin.com/in/yourprofile"
+                  className="w-full bg-black border border-gray-800 rounded-md px-4 py-3 text-textLight focus:outline-none focus:border-netflixRed/50 transition font-light"
+                />
+              </div>
+              <div>
+                <label className="block text-textLight font-light mb-2">Interests</label>
+                <textarea
+                  value={formData.interests.join(', ')}
+                  onChange={(e) => {
+                    const interestsArray = e.target.value
+                      .split(',')
+                      .map(interest => interest.trim())
+                      .filter(interest => interest.length > 0);
+                    setFormData({ ...formData, interests: interestsArray });
+                  }}
+                  placeholder="Enter interests separated by commas (e.g., AI, Startups, Technology)"
+                  className="w-full bg-black border border-gray-800 rounded-md px-4 py-3 text-textLight focus:outline-none focus:border-netflixRed/50 transition resize-none font-light"
+                  rows="3"
+                />
+                <p className="text-textGray text-xs mt-1 font-light">Separate multiple interests with commas</p>
               </div>
               <div className="flex gap-4 pt-4">
                 <motion.button
