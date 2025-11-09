@@ -48,10 +48,18 @@ router.post('/:matchId/messages', authenticateJWT, async (req, res) => {
     if (ioInstance) {
       try {
         const chatNamespace = ioInstance.of('/chat');
-        chatNamespace.to(`match:${matchId}`).emit('message', populatedMessage);
+        const room = `match:${matchId}`;
+        console.log(`Emitting message to room: ${room}`, populatedMessage._id);
+        chatNamespace.to(room).emit('message', populatedMessage);
+        
+        // Log room info for debugging
+        const socketsInRoom = await chatNamespace.in(room).fetchSockets();
+        console.log(`Sockets in room ${room}:`, socketsInRoom.length);
       } catch (error) {
         console.error('Socket.io emit error:', error);
       }
+    } else {
+      console.warn('ioInstance not available for emitting message');
     }
 
     res.status(201).json(populatedMessage);

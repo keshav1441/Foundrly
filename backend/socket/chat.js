@@ -26,7 +26,16 @@ export function setupSocketIO(io) {
 
     socket.on('join', async (data) => {
       const { matchId } = data;
-      socket.join(`match:${matchId}`);
+      if (!matchId) {
+        console.error('Join event received without matchId');
+        return;
+      }
+      const room = `match:${matchId}`;
+      socket.join(room);
+      console.log(`User ${socket.userId} joined room: ${room}`);
+      
+      // Confirm join
+      socket.emit('joined', { matchId, room });
     });
 
     socket.on('message', async (data) => {

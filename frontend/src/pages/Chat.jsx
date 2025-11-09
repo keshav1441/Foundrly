@@ -54,22 +54,54 @@ export default function Chat() {
     // Connect to Socket.io
     const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
     const baseURL = API_URL.replace('/api', '');
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      console.error('No token found for Socket.io connection');
+      return;
+    }
+
     const socketInstance = io(`${baseURL}/chat`, {
       auth: {
-        token: localStorage.getItem('token'),
+        token: token,
       },
+      transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: 5,
     });
 
     socketRef.current = socketInstance;
 
     socketInstance.on('connect', () => {
-      console.log('Socket connected');
+      console.log('Socket connected, joining match:', selectedMatchId);
+      socketInstance.emit('join', { matchId: selectedMatchId });
+    });
+
+    socketInstance.on('joined', (data) => {
+      console.log('Successfully joined room:', data);
+    });
+
+    socketInstance.on('disconnect', (reason) => {
+      console.log('Socket disconnected:', reason);
+    });
+
+    socketInstance.on('connect_error', (error) => {
+      console.error('Socket connection error:', error);
+    });
+
+    socketInstance.on('reconnect', (attemptNumber) => {
+      console.log('Socket reconnected after', attemptNumber, 'attempts');
       socketInstance.emit('join', { matchId: selectedMatchId });
     });
     
     const handleMessage = (message) => {
+      console.log('Received message via Socket.io:', message);
       const messageId = message._id?.toString();
-      if (!messageId) return;
+      if (!messageId) {
+        console.warn('Message received without _id:', message);
+        return;
+      }
       
       // Check if message was already processed
       if (processedMessageIds.current.has(messageId)) {
@@ -116,8 +148,12 @@ export default function Chat() {
     return () => {
       if (socketInstance) {
         socketInstance.off('message', handleMessage);
+        socketInstance.off('joined');
         socketInstance.off('error');
         socketInstance.off('connect');
+        socketInstance.off('disconnect');
+        socketInstance.off('connect_error');
+        socketInstance.off('reconnect');
         socketInstance.disconnect();
       }
       socketRef.current = null;
@@ -276,45 +312,51 @@ export default function Chat() {
                       isSelected ? 'bg-netflixRed/20 border-l-4 border-netflixRed' : 'hover:bg-darkBg/50'
                     }`}
                   >
-                    <div className="flex items-start gap-3">
-                      {/* Avatar */}
-                      <div className="w-12 h-12 rounded-full overflow-hidden border border-netflixRed/30 flex-shrink-0">
-                        <img
-                          src={other?.avatar || `https://ui-avatars.com/api/?name=${other?.name}`}
-                          alt={other?.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
+                     <div className="flex items-start gap-3">
+                       {/* Avatar - Show idea emoji or first letter */}
+                       <div className="w-12 h-12 rounded-full overflow-hidden border border-netflixRed/30 flex-shrink-0 bg-gradient-to-br from-netflixRed/20 to-purple-600/20 flex items-center justify-center">
+                         {matchItem.idea?.name ? (
+                           <span className="text-xl font-bold text-textLight">
+                             {matchItem.idea.name.charAt(0)}
+                           </span>
+                         ) : (
+                           <img
+                             src={other?.avatar || `https://ui-avatars.com/api/?name=${other?.name}`}
+                             alt={other?.name}
+                             className="w-full h-full object-cover"
+                           />
+                         )}
+                       </div>
 
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <h3 className="text-sm font-medium text-textLight truncate">
-                            {other?.name}
-                          </h3>
-                          {matchItem.lastMessage && (
-                            <span className="text-xs text-textGray/60 ml-2 flex-shrink-0">
-                              {formatTime(matchItem.lastMessage.createdAt)}
-                            </span>
-                          )}
-                        </div>
-                        
-                        {matchItem.idea && (
-                          <p className="text-xs text-textGray/60 mb-1 truncate">
-                            {matchItem.idea.name}
-                          </p>
-                        )}
+                       {/* Content */}
+                       <div className="flex-1 min-w-0">
+                         <div className="flex items-center justify-between mb-1">
+                           <h3 className="text-sm font-medium text-textLight truncate">
+                             {matchItem.idea?.name || 'Untitled Idea'}
+                           </h3>
+                           {matchItem.lastMessage && (
+                             <span className="text-xs text-textGray/60 ml-2 flex-shrink-0">
+                               {formatTime(matchItem.lastMessage.createdAt)}
+                             </span>
+                           )}
+                         </div>
+                         
+                         {other && (
+                           <p className="text-xs text-textGray/60 mb-1 truncate">
+                             with {other.name}
+                           </p>
+                         )}
 
-                        {matchItem.lastMessage ? (
-                          <p className="text-sm text-textGray truncate">
-                            {matchItem.lastMessage.sender?._id === user._id ? 'You: ' : ''}
-                            {matchItem.lastMessage.content}
-                          </p>
-                        ) : (
-                          <p className="text-sm text-textGray/60 italic">No messages yet</p>
-                        )}
-                      </div>
-                    </div>
+                         {matchItem.lastMessage ? (
+                           <p className="text-sm text-textGray truncate">
+                             {matchItem.lastMessage.sender?._id === user._id ? 'You: ' : `${other?.name}: `}
+                             {matchItem.lastMessage.content}
+                           </p>
+                         ) : (
+                           <p className="text-sm text-textGray/60 italic">No messages yet</p>
+                         )}
+                       </div>
+                     </div>
                   </motion.div>
                 );
               })}
@@ -327,29 +369,35 @@ export default function Chat() {
       <div className="flex-1 flex flex-col bg-black h-full overflow-hidden">
         {selectedMatchId && match && otherUser ? (
           <>
-            {/* Chat Header */}
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-darkBg/50 backdrop-blur-xl p-4 border-b border-gray-900 flex-shrink-0"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full overflow-hidden border border-netflixRed/30">
-                  <img
-                    src={otherUser.avatar || `https://ui-avatars.com/api/?name=${otherUser.name}`}
-                    alt={otherUser.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+             {/* Chat Header */}
+             <motion.div
+               initial={{ opacity: 0, y: -20 }}
+               animate={{ opacity: 1, y: 0 }}
+               className="bg-darkBg/50 backdrop-blur-xl p-4 border-b border-gray-900 flex-shrink-0"
+             >
+               <div className="flex items-center gap-4">
+                 <div className="w-10 h-10 rounded-full overflow-hidden border border-netflixRed/30 bg-gradient-to-br from-netflixRed/20 to-purple-600/20 flex items-center justify-center">
+                   {match.idea?.name ? (
+                     <span className="text-lg font-bold text-textLight">
+                       {match.idea.name.charAt(0)}
+                     </span>
+                   ) : (
+                     <img
+                       src={otherUser.avatar || `https://ui-avatars.com/api/?name=${otherUser.name}`}
+                       alt={otherUser.name}
+                       className="w-full h-full object-cover"
+                     />
+                   )}
+                 </div>
 
-                <div className="flex-1">
-                  <h2 className="text-lg font-light text-textLight">{otherUser.name}</h2>
-                  <p className="text-xs text-textGray font-light">
-                    {match.idea?.name}
-                  </p>
-                </div>
-              </div>
-            </motion.div>
+                 <div className="flex-1">
+                   <h2 className="text-lg font-light text-textLight">{match.idea?.name || 'Untitled Idea'}</h2>
+                   <p className="text-xs text-textGray font-light">
+                     with {otherUser.name}
+                   </p>
+                 </div>
+               </div>
+             </motion.div>
 
             {/* Messages Container */}
             <div className="flex-1 bg-darkBg/20 overflow-y-auto overflow-x-hidden p-6 space-y-4">
