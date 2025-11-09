@@ -68,12 +68,23 @@ router.post("/", authenticateJWT, async (req, res) => {
     if (ioInstance) {
       try {
         const chatNamespace = ioInstance.of("/chat");
+        const notification = {
+          type: "request",
+          id: populatedRequest._id,
+          createdAt: populatedRequest.createdAt,
+          data: {
+            requester: populatedRequest.requester,
+            idea: populatedRequest.idea,
+            message: populatedRequest.message,
+          },
+        };
         chatNamespace
           .to(`user:${ideaOwnerId}`)
-          .emit("new_request_notification", {
-            type: "request",
-            request: populatedRequest,
-          });
+          .emit("new_notification", notification);
+        // Also emit for backward compatibility
+        chatNamespace
+          .to(`user:${ideaOwnerId}`)
+          .emit("new_request_notification", notification);
       } catch (error) {
         console.error("Socket.io emit error:", error);
       }
@@ -169,14 +180,26 @@ router.post("/:id/accept", authenticateJWT, async (req, res) => {
     if (ioInstance) {
       try {
         const chatNamespace = ioInstance.of("/chat");
+
         // Notify requester that their request was accepted
+        const acceptedNotification = {
+          type: "request_accepted",
+          id: request._id,
+          createdAt: request.updatedAt || new Date(),
+          data: {
+            ideaOwner: request.ideaOwner,
+            idea: request.idea,
+            message: request.message,
+          },
+        };
         chatNamespace
           .to(`user:${request.requester._id}`)
-          .emit("request_accepted_notification", {
-            type: "request_accepted",
-            request: request,
-            match: populatedMatch,
-          });
+          .emit("new_notification", acceptedNotification);
+        // Also emit for backward compatibility
+        chatNamespace
+          .to(`user:${request.requester._id}`)
+          .emit("request_accepted_notification", acceptedNotification);
+
         // Notify both users about the new match
         chatNamespace
           .to(`user:${request.requester._id}`)

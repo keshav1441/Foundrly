@@ -34,35 +34,86 @@ export default function Notifications({ isOpen, onClose, onNotificationsChange }
 
       socketRef.current = socketInstance;
 
-      // Listen for new request notifications
+      // Listen for new notifications (unified event)
+      socketInstance.on('new_notification', (notification) => {
+        console.log('New notification received:', notification);
+        // Add notification to the list
+        setNotifications(prev => {
+          // Check if notification already exists
+          const exists = prev.some(n => n.id === notification.id && n.type === notification.type);
+          if (exists) return prev;
+          // Add to beginning and sort
+          const updated = [notification, ...prev].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+          return updated;
+        });
+        // Update unread count
+        setUnreadCount(prev => prev + 1);
+        onNotificationsChange?.(); // Update navbar count
+      });
+
+      // Listen for new request notifications (backward compatibility)
       socketInstance.on('new_request_notification', (data) => {
         console.log('New request notification:', data);
-        loadNotifications(); // Reload notifications
-        onNotificationsChange?.(); // Update navbar count
+        if (data.type && data.id) {
+          // If it's already in the new format, handle it directly
+          setNotifications(prev => {
+            const exists = prev.some(n => n.id === data.id && n.type === data.type);
+            if (exists) return prev;
+            const updated = [data, ...prev].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            return updated;
+          });
+          setUnreadCount(prev => prev + 1);
+        } else {
+          loadNotifications(); // Fallback to reload
+        }
+        onNotificationsChange?.();
       });
 
-      // Listen for new message notifications
+      // Listen for new message notifications (backward compatibility)
       socketInstance.on('new_message_notification', (data) => {
         console.log('New message notification:', data);
-        loadNotifications(); // Reload notifications
-        onNotificationsChange?.(); // Update navbar count
+        if (data.type && data.id) {
+          // If it's already in the new format, handle it directly
+          setNotifications(prev => {
+            const exists = prev.some(n => n.id === data.id && n.type === data.type);
+            if (exists) return prev;
+            const updated = [data, ...prev].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            return updated;
+          });
+          setUnreadCount(prev => prev + 1);
+        } else {
+          loadNotifications(); // Fallback to reload
+        }
+        onNotificationsChange?.();
       });
 
-      // Listen for request accepted notifications
+      // Listen for request accepted notifications (backward compatibility)
       socketInstance.on('request_accepted_notification', (data) => {
         console.log('Request accepted notification:', data);
-        loadNotifications(); // Reload notifications
-        onNotificationsChange?.(); // Update navbar count
+        if (data.type && data.id) {
+          // If it's already in the new format, handle it directly
+          setNotifications(prev => {
+            const exists = prev.some(n => n.id === data.id && n.type === data.type);
+            if (exists) return prev;
+            const updated = [data, ...prev].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            return updated;
+          });
+          setUnreadCount(prev => prev + 1);
+        } else {
+          loadNotifications(); // Fallback to reload
+        }
+        onNotificationsChange?.();
       });
 
       // Listen for match notifications (also triggers when requests are accepted)
       socketInstance.on('match_notification', (data) => {
         console.log('Match notification:', data);
-        loadNotifications(); // Reload notifications
-        onNotificationsChange?.(); // Update navbar count
+        loadNotifications(); // Reload to get updated match data
+        onNotificationsChange?.();
       });
 
       return () => {
+        socketInstance.off('new_notification');
         socketInstance.off('new_request_notification');
         socketInstance.off('new_message_notification');
         socketInstance.off('request_accepted_notification');

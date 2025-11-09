@@ -55,7 +55,12 @@ export default function Navbar() {
 
         socketRef.current = socket;
 
-        // Listen for new notifications
+        // Listen for new notifications (unified event)
+        socket.on('new_notification', () => {
+          loadNotifications();
+        });
+
+        // Listen for backward compatibility events
         socket.on('new_request_notification', () => {
           loadNotifications();
         });
@@ -67,6 +72,10 @@ export default function Navbar() {
         socket.on('request_accepted_notification', () => {
           loadNotifications();
         });
+
+        socket.on('match_notification', () => {
+          loadNotifications();
+        });
       });
     }
 
@@ -75,9 +84,11 @@ export default function Navbar() {
 
     return () => {
       if (socketRef.current) {
+        socketRef.current.off('new_notification');
         socketRef.current.off('new_request_notification');
         socketRef.current.off('new_message_notification');
         socketRef.current.off('request_accepted_notification');
+        socketRef.current.off('match_notification');
         socketRef.current.disconnect();
         socketRef.current = null;
       }
@@ -152,6 +163,9 @@ export default function Navbar() {
             </NavLink>
             <NavLink to="/requests" isActive={isActive('/requests')}>
               Requests
+            </NavLink>
+            <NavLink to="/my-ideas" isActive={isActive('/my-ideas')}>
+              My Ideas
             </NavLink>
 
             {/* Notifications Icon */}

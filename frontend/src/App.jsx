@@ -9,6 +9,7 @@ import Matches from './pages/Matches';
 import Requests from './pages/Requests';
 import Chat from './pages/Chat';
 import Profile from './pages/Profile';
+import MyIdeas from './pages/MyIdeas';
 import AuthCallback from './pages/AuthCallback';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -63,6 +64,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Profile />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/my-ideas"
+        element={
+          <ProtectedRoute>
+            <MyIdeas />
           </ProtectedRoute>
         }
       />
