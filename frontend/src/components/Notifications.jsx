@@ -5,6 +5,7 @@ import { api } from '../api/api';
 import { useAuth } from '../contexts/AuthContext';
 import { io } from 'socket.io-client';
 import Avatar from './Avatar';
+import { BASE_URL } from '../config/api.js';
 
 export default function Notifications({ isOpen, onClose, onNotificationsChange }) {
   const { user } = useAuth();
@@ -21,8 +22,7 @@ export default function Notifications({ isOpen, onClose, onNotificationsChange }
     loadNotifications();
 
     // Setup Socket.io connection for real-time notifications
-    const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api';
-    const baseURL = API_URL.replace('/api', '');
+    const baseURL = BASE_URL;
     const token = localStorage.getItem('token');
 
     if (token) {

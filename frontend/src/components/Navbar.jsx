@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useState, useEffect, useRef } from 'react';
 import Notifications from './Notifications';
 import Avatar from './Avatar';
+import { BASE_URL } from '../config/api.js';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -39,8 +40,7 @@ export default function Navbar() {
     loadNotifications();
 
     // Setup Socket.io for real-time notifications
-    const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api';
-    const baseURL = API_URL.replace('/api', '');
+    const baseURL = BASE_URL;
     const token = localStorage.getItem('token');
 
     let interval = null;

@@ -6,6 +6,7 @@ import { useToast } from '../contexts/ToastContext';
 import { api } from '../api/api';
 import { io } from 'socket.io-client';
 import Avatar from '../components/Avatar';
+import { BASE_URL } from '../config/api.js';
 
 export default function Chat() {
   const { matchId: urlMatchId } = useParams();
@@ -53,8 +54,7 @@ export default function Chat() {
     }
 
     // Connect to Socket.io
-    const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
-    const baseURL = API_URL.replace('/api', '');
+    const baseURL = BASE_URL;
     const token = localStorage.getItem('token');
     
     if (!token) {
