@@ -37,53 +37,38 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-dark relative overflow-hidden">
+    <div className="min-h-screen bg-black relative overflow-hidden">
       {/* Back Button */}
       <motion.button
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
+        whileHover={{ opacity: 0.8 }}
         onClick={handleBack}
-        className="fixed top-6 left-6 z-50 text-textGray hover:text-netflixRed transition flex items-center gap-2"
+        className="fixed top-6 left-6 z-50 text-textGray hover:text-textLight transition flex items-center gap-2"
       >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
         </svg>
-        <span className="font-semibold">Back</span>
+        <span className="font-light">Back</span>
       </motion.button>
 
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{ duration: 8, repeat: Infinity }}
-          className="absolute top-0 right-0 w-96 h-96 bg-netflixRed/20 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.2, 0.4, 0.2],
-          }}
-          transition={{ duration: 10, repeat: Infinity, delay: 1 }}
-          className="absolute bottom-0 left-0 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl"
-        />
+      {/* Subtle Background */}
+      <div className="absolute inset-0">
+        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-netflixRed/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 left-1/4 w-80 h-80 bg-netflixRed/3 rounded-full blur-3xl" />
       </div>
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 py-20 flex flex-col items-center justify-center min-h-screen">
         {/* Logo */}
         <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: 'spring', duration: 0.8 }}
-          className="mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="mb-12"
         >
-          <h1 className="text-7xl md:text-9xl font-bold bg-gradient-to-r from-netflixRed via-red-400 to-pink-500 bg-clip-text text-transparent">
-            Foundrly
+          <h1 className="text-7xl md:text-8xl font-light tracking-tighter text-textLight text-center">
+            found<span className="text-netflixRed">r</span>ly
           </h1>
         </motion.div>
 
@@ -91,35 +76,26 @@ export default function Home() {
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="text-xl md:text-2xl text-textGray mb-4 text-center max-w-2xl"
+          transition={{ delay: 0.2 }}
+          className="text-xl text-textGray mb-16 text-center max-w-md font-light"
         >
-          Find your cofounder for the next dumb unicorn.
-        </motion.p>
-
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="text-lg text-textGray/80 mb-12 text-center italic"
-        >
-          Because every bad founder needs company.
+          Find your cofounder for the next dumb unicorn
         </motion.p>
 
         {/* Login Card */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="bg-cardBg/50 backdrop-blur-xl rounded-2xl shadow-2xl p-8 max-w-md w-full border border-gray-800"
+          transition={{ delay: 0.4 }}
+          className="bg-darkBg/50 backdrop-blur-xl rounded-lg border border-gray-900 p-8 max-w-md w-full"
         >
           <div className="space-y-4">
             {/* Google Login */}
             <motion.button
-              whileHover={{ scale: 1.02, boxShadow: '0 0 20px rgba(229, 9, 20, 0.3)' }}
+              whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => handleOAuthLogin('google')}
-              className="w-full bg-white text-gray-800 py-3 px-4 rounded-lg font-semibold hover:bg-gray-100 transition flex items-center justify-center gap-3"
+              className="w-full bg-white text-gray-800 py-3.5 px-4 rounded-md font-medium hover:bg-gray-100 transition flex items-center justify-center gap-3"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path
@@ -144,10 +120,10 @@ export default function Home() {
 
             {/* GitHub Login */}
             <motion.button
-              whileHover={{ scale: 1.02, boxShadow: '0 0 20px rgba(229, 9, 20, 0.3)' }}
+              whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => handleOAuthLogin('github')}
-              className="w-full bg-gray-900 text-white py-3 px-4 rounded-lg font-semibold hover:bg-gray-800 transition flex items-center justify-center gap-3 border border-gray-700"
+              className="w-full bg-darkBg text-white py-3.5 px-4 rounded-md font-medium hover:bg-cardBg transition flex items-center justify-center gap-3 border border-gray-800"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
@@ -158,10 +134,10 @@ export default function Home() {
             {/* Divider */}
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-700"></div>
+                <div className="w-full border-t border-gray-800"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-cardBg text-textGray">Or use mock login</span>
+                <span className="px-3 bg-darkBg/50 text-textGray font-light">or continue with</span>
               </div>
             </div>
 
@@ -171,9 +147,9 @@ export default function Home() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setShowMockForm(true)}
-                className="w-full bg-netflixRed/20 text-textLight py-3 px-4 rounded-lg font-semibold hover:bg-netflixRed/30 transition border border-netflixRed/50"
+                className="w-full bg-netflixRed/10 text-textLight py-3.5 px-4 rounded-md font-medium hover:bg-netflixRed/20 transition border border-netflixRed/30"
               >
-                Quick Demo Login
+                Demo Login
               </motion.button>
             )}
 
@@ -190,20 +166,20 @@ export default function Home() {
                   placeholder="Email (optional)"
                   value={mockEmail}
                   onChange={(e) => setMockEmail(e.target.value)}
-                  className="w-full bg-darkBg border border-gray-700 rounded-lg px-4 py-3 text-textLight focus:outline-none focus:border-netflixRed transition"
+                  className="w-full bg-black border border-gray-800 rounded-md px-4 py-3 text-textLight focus:outline-none focus:border-netflixRed/50 transition font-light"
                 />
                 <input
                   type="text"
                   placeholder="Name (optional)"
                   value={mockName}
                   onChange={(e) => setMockName(e.target.value)}
-                  className="w-full bg-darkBg border border-gray-700 rounded-lg px-4 py-3 text-textLight focus:outline-none focus:border-netflixRed transition"
+                  className="w-full bg-black border border-gray-800 rounded-md px-4 py-3 text-textLight focus:outline-none focus:border-netflixRed/50 transition font-light"
                 />
                 <motion.button
-                  whileHover={{ scale: 1.02, boxShadow: '0 0 20px rgba(229, 9, 20, 0.5)' }}
+                  whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   type="submit"
-                  className="w-full bg-netflixRed text-white py-3 px-4 rounded-lg font-semibold hover:bg-accentHover transition"
+                  className="w-full bg-netflixRed text-white py-3.5 px-4 rounded-md font-medium hover:bg-netflixRed/90 transition"
                 >
                   Login
                 </motion.button>
@@ -216,12 +192,10 @@ export default function Home() {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="text-xs text-textGray/60 mt-8 text-center max-w-md"
+          transition={{ delay: 0.6 }}
+          className="text-xs text-textGray/60 mt-8 text-center max-w-md font-light"
         >
           By continuing, you agree to our Terms of Service and Privacy Policy.
-          <br />
-          (Just kidding, this is a demo.)
         </motion.p>
       </div>
     </div>

@@ -26,30 +26,30 @@ export default function Matches() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-dark flex items-center justify-center pt-20">
+      <div className="min-h-screen bg-black flex items-center justify-center pt-20">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-          className="w-16 h-16 border-4 border-netflixRed border-t-transparent rounded-full"
+          className="w-16 h-16 border-2 border-netflixRed border-t-transparent rounded-full"
         />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-dark pt-20 pb-12 px-4">
+    <div className="min-h-screen bg-black pt-20 pb-12 px-4">
       <div className="container mx-auto max-w-6xl">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="mb-12"
         >
-          <h1 className="text-5xl font-bold text-textLight mb-4">
-            Your Matches
+          <h1 className="text-4xl font-light text-textLight mb-2 tracking-tight">
+            Matches
           </h1>
-          <p className="text-textGray text-lg">
-            Matched with Fellow Delusionists
+          <p className="text-textGray font-light">
+            Fellow delusionists who liked the same terrible ideas
           </p>
         </motion.div>
 
@@ -59,18 +59,17 @@ export default function Matches() {
             animate={{ opacity: 1, scale: 1 }}
             className="text-center py-20"
           >
-            <div className="text-6xl mb-4">😢</div>
-            <h2 className="text-2xl font-semibold text-textLight mb-2">
+            <h2 className="text-2xl font-light text-textLight mb-4">
               No matches yet
             </h2>
-            <p className="text-textGray mb-8">
-              Keep swiping to find your cofounder!
+            <p className="text-textGray mb-8 font-light">
+              Keep swiping to find your cofounder
             </p>
             <Link to="/swipe">
               <motion.button
-                whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(229, 9, 20, 0.5)' }}
+                whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-netflixRed text-white px-8 py-3 rounded-lg font-semibold"
+                className="bg-netflixRed text-white px-8 py-3 rounded-md font-medium"
               >
                 Start Swiping
               </motion.button>
@@ -86,20 +85,14 @@ export default function Matches() {
                   key={match._id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ scale: 1.03, y: -5 }}
+                  transition={{ delay: index * 0.05 }}
+                  whileHover={{ y: -5 }}
                 >
                   <Link to={`/chat/${match._id}`}>
-                    <div className="bg-gradient-card rounded-xl overflow-hidden border border-gray-800 shadow-card hover:border-netflixRed/50 transition-all group">
-                      <div className="relative h-48 bg-gradient-to-br from-darkPurple to-darkRed flex items-center justify-center overflow-hidden">
-                        <motion.div
-                          animate={{
-                            scale: [1, 1.05, 1],
-                          }}
-                          transition={{ duration: 3, repeat: Infinity }}
-                          className="absolute inset-0 bg-gradient-to-br from-netflixRed/20 to-purple-600/20"
-                        />
-                        <div className="relative z-10 w-24 h-24 rounded-full overflow-hidden border-4 border-netflixRed shadow-glow">
+                    <div className="bg-darkBg/50 backdrop-blur-xl rounded-lg overflow-hidden border border-gray-900 hover:border-gray-800 transition-all group">
+                      <div className="relative h-48 bg-gradient-to-br from-black via-darkBg to-black flex items-center justify-center overflow-hidden">
+                        <div className="absolute inset-0 bg-netflixRed/5" />
+                        <div className="relative z-10 w-24 h-24 rounded-full overflow-hidden border-2 border-netflixRed/30 group-hover:border-netflixRed transition">
                           <img
                             src={otherUser.avatar || `https://ui-avatars.com/api/?name=${otherUser.name}`}
                             alt={otherUser.name}
@@ -108,26 +101,29 @@ export default function Matches() {
                         </div>
                       </div>
 
-                      <div className="p-5">
-                        <h3 className="text-xl font-bold text-textLight mb-1 group-hover:text-netflixRed transition">
+                      <div className="p-6">
+                        <h3 className="text-xl font-light text-textLight mb-1 group-hover:text-netflixRed transition">
                           {otherUser.name}
                         </h3>
-                        <p className="text-textGray text-sm mb-3">
+                        <p className="text-textGray text-sm mb-4 font-light">
                           {otherUser.role || 'Founder'}
                         </p>
 
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-textGray">
-                            Matched on: <span className="text-textLight font-semibold">{match.idea?.name}</span>
-                          </span>
-                        </div>
+                        {match.idea && (
+                          <div className="mb-4">
+                            <p className="text-xs text-textGray/60 mb-1 font-light">Matched on</p>
+                            <p className="text-sm text-textLight font-light">{match.idea.name}</p>
+                          </div>
+                        )}
 
                         <motion.div
                           whileHover={{ x: 5 }}
-                          className="mt-4 text-netflixRed font-semibold flex items-center gap-2"
+                          className="text-netflixRed font-light flex items-center gap-2 text-sm"
                         >
-                          Start Chat
-                          <span>→</span>
+                          Start chat
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
                         </motion.div>
                       </div>
                     </div>

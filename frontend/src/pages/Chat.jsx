@@ -79,39 +79,39 @@ export default function Chat() {
 
   if (!match || !otherUser) {
     return (
-      <div className="min-h-screen bg-gradient-dark flex items-center justify-center pt-20">
+      <div className="min-h-screen bg-black flex items-center justify-center pt-20">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-          className="w-16 h-16 border-4 border-netflixRed border-t-transparent rounded-full"
+          className="w-16 h-16 border-2 border-netflixRed border-t-transparent rounded-full"
         />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-dark pt-20 pb-4 px-4">
+    <div className="min-h-screen bg-black pt-20 pb-4 px-4">
       <div className="container mx-auto max-w-4xl h-[calc(100vh-7rem)] flex flex-col">
         {/* Chat Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-cardBg/80 backdrop-blur-xl rounded-t-2xl p-4 border border-gray-800 border-b-0"
+          className="bg-darkBg/50 backdrop-blur-xl rounded-t-lg p-4 border border-gray-900 border-b-0"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
+                whileHover={{ opacity: 0.8 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => navigate('/matches')}
-                className="text-textGray hover:text-netflixRed transition"
+                className="text-textGray hover:text-textLight transition"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
                 </svg>
               </motion.button>
 
-              <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-netflixRed">
+              <div className="w-10 h-10 rounded-full overflow-hidden border border-netflixRed/30">
                 <img
                   src={otherUser.avatar || `https://ui-avatars.com/api/?name=${otherUser.name}`}
                   alt={otherUser.name}
@@ -120,9 +120,9 @@ export default function Chat() {
               </div>
 
               <div>
-                <h2 className="text-xl font-bold text-textLight">{otherUser.name}</h2>
-                <p className="text-sm text-textGray">
-                  Matched on: <span className="text-netflixRed font-semibold">{match.idea?.name}</span>
+                <h2 className="text-lg font-light text-textLight">{otherUser.name}</h2>
+                <p className="text-xs text-textGray font-light">
+                  {match.idea?.name}
                 </p>
               </div>
             </div>
@@ -130,7 +130,7 @@ export default function Chat() {
         </motion.div>
 
         {/* Messages Container */}
-        <div className="flex-1 bg-darkBg/50 backdrop-blur-sm border-x border-gray-800 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 bg-darkBg/30 backdrop-blur-sm border-x border-gray-900 overflow-y-auto p-4 space-y-4">
           <AnimatePresence>
             {messages.map((message, index) => {
               const isOwnMessage = message.sender._id === user._id;
@@ -138,20 +138,20 @@ export default function Chat() {
               return (
                 <motion.div
                   key={message._id || index}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
+                  transition={{ delay: index * 0.02 }}
                   className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl ${
+                    className={`max-w-xs lg:max-w-md px-4 py-3 rounded-lg font-light ${
                       isOwnMessage
-                        ? 'bg-netflixRed text-white rounded-br-none shadow-glowSm'
-                        : 'bg-cardBg text-textLight rounded-bl-none border border-gray-700'
+                        ? 'bg-netflixRed/90 text-white rounded-br-sm'
+                        : 'bg-darkBg/80 text-textLight rounded-bl-sm border border-gray-800'
                     }`}
                   >
                     <p className="break-words">{message.content}</p>
-                    <p className={`text-xs mt-1 ${isOwnMessage ? 'text-white/70' : 'text-textGray'}`}>
+                    <p className={`text-xs mt-1 ${isOwnMessage ? 'text-white/60' : 'text-textGray/60'}`}>
                       {new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
@@ -167,24 +167,24 @@ export default function Chat() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           onSubmit={handleSendMessage}
-          className="bg-cardBg/80 backdrop-blur-xl rounded-b-2xl p-4 border border-gray-800 border-t-0"
+          className="bg-darkBg/50 backdrop-blur-xl rounded-b-lg p-4 border border-gray-900 border-t-0"
         >
           <div className="flex items-center gap-3">
             <input
               type="text"
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Type your message..."
-              className="flex-1 bg-darkBg border border-gray-700 rounded-full px-6 py-3 text-textLight placeholder-textGray focus:outline-none focus:border-netflixRed transition"
+              placeholder="Type a message..."
+              className="flex-1 bg-black border border-gray-800 rounded-md px-4 py-3 text-textLight placeholder-textGray/50 focus:outline-none focus:border-netflixRed/50 transition font-light"
             />
             <motion.button
-              whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(229, 9, 20, 0.5)' }}
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               type="submit"
               disabled={!newMessage.trim()}
-              className="bg-netflixRed text-white p-3 rounded-full disabled:opacity-50 disabled:cursor-not-allowed transition"
+              className="bg-netflixRed text-white p-3 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
               </svg>
             </motion.button>

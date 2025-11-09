@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
@@ -18,6 +18,7 @@ export default function Profile() {
     role: '',
     avatar: '',
   });
+  const ideasSectionRef = useRef(null);
 
   const isOwnProfile = !userId || userId === authUser?._id;
 
@@ -73,13 +74,17 @@ export default function Profile() {
     navigate(`/matches`);
   };
 
+  const scrollToIdeas = () => {
+    ideasSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-dark flex items-center justify-center pt-20">
+      <div className="min-h-screen bg-black flex items-center justify-center pt-20">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-          className="w-16 h-16 border-4 border-netflixRed border-t-transparent rounded-full"
+          className="w-16 h-16 border-2 border-netflixRed border-t-transparent rounded-full"
         />
       </div>
     );
@@ -87,12 +92,12 @@ export default function Profile() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-dark flex items-center justify-center pt-20">
+      <div className="min-h-screen bg-black flex items-center justify-center pt-20">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-textLight mb-4">User not found</h2>
+          <h2 className="text-2xl font-light text-textLight mb-4">User not found</h2>
           <button
             onClick={() => navigate('/swipe')}
-            className="text-netflixRed hover:text-accentHover transition"
+            className="text-netflixRed hover:text-netflixRed/80 transition font-light"
           >
             Go back
           </button>
@@ -102,25 +107,20 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-dark pt-0 pb-12">
-      {/* Hero Section - Netflix Mulan Style */}
+    <div className="min-h-screen bg-black pt-0 pb-12">
+      {/* Hero Section */}
       <div className="relative h-[100vh] min-h-[600px] overflow-hidden">
-        {/* Background Image/Gradient */}
+        {/* Background */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-darkPurple via-netflixRed/40 to-darkRed">
-            <motion.div
-              animate={{
-                scale: [1, 1.1, 1],
-                opacity: [0.3, 0.5, 0.3],
-              }}
-              transition={{ duration: 8, repeat: Infinity }}
-              className="absolute inset-0 bg-gradient-to-br from-netflixRed/20 to-purple-600/20"
-            />
+          <div className="absolute inset-0 bg-gradient-to-b from-black via-darkBg to-black">
+            {/* Subtle red accent spots */}
+            <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-netflixRed/5 rounded-full blur-3xl" />
+            <div className="absolute bottom-1/3 left-1/4 w-80 h-80 bg-netflixRed/8 rounded-full blur-3xl" />
           </div>
           
           {/* User Avatar as Background Element */}
           {user.avatar && (
-            <div className="absolute inset-0 opacity-20">
+            <div className="absolute inset-0 opacity-10">
               <img
                 src={user.avatar}
                 alt={user.name}
@@ -133,24 +133,24 @@ export default function Profile() {
         {/* Content Overlay */}
         <div className="relative z-10 h-full flex flex-col justify-end container mx-auto px-6 pb-16">
           <div className="max-w-4xl">
-            {/* User Name - Large Title */}
+            {/* User Name */}
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="text-7xl md:text-9xl font-bold text-textLight mb-6 uppercase tracking-tight"
+              className="text-6xl md:text-8xl font-light text-textLight mb-6 tracking-tight"
             >
               {user.name}
             </motion.h1>
 
-            {/* Description/Bio */}
+            {/* Bio */}
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="text-textLight text-lg md:text-xl mb-6 max-w-3xl leading-relaxed"
+              className="text-textLight text-lg md:text-xl mb-6 max-w-3xl leading-relaxed font-light"
             >
-              {user.bio || 'No bio yet. Add one to tell others about your vision!'}
+              {user.bio || 'No bio yet'}
             </motion.p>
 
             {/* Metadata */}
@@ -158,12 +158,12 @@ export default function Profile() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="text-textLight mb-8 text-lg"
+              className="text-textGray mb-8 text-lg font-light"
             >
               {new Date().getFullYear()} • {user.role || 'Visionary'} • {ideas.length} Ideas
             </motion.div>
 
-            {/* Action Button - Netflix Play Button Style */}
+            {/* Action Buttons */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -171,39 +171,32 @@ export default function Profile() {
               className="flex items-center gap-4"
             >
               {isOwnProfile ? (
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setEditing(true)}
-                  className="bg-netflixRed text-white px-8 py-4 rounded-full font-semibold flex items-center gap-3 text-lg shadow-glow"
-                >
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
-                  Edit Profile
-                </motion.button>
+                <>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setEditing(true)}
+                    className="bg-netflixRed text-white px-8 py-3 rounded-md font-medium"
+                  >
+                    Edit Profile
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={scrollToIdeas}
+                    className="bg-transparent border border-textGray/30 text-textLight px-8 py-3 rounded-md font-medium hover:border-textGray/60 transition"
+                  >
+                    My Ideas
+                  </motion.button>
+                </>
               ) : (
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={handleMessage}
-                  className="bg-netflixRed text-white px-8 py-4 rounded-full font-semibold flex items-center gap-3 text-lg shadow-glow"
+                  className="bg-netflixRed text-white px-8 py-3 rounded-md font-medium"
                 >
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
                   Message
-                </motion.button>
-              )}
-              
-              {isOwnProfile && (
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={logout}
-                  className="bg-darkBg/50 backdrop-blur-sm border-2 border-textLight text-textLight px-8 py-4 rounded-full font-semibold hover:bg-darkBg/70 transition text-lg"
-                >
-                  Logout
                 </motion.button>
               )}
             </motion.div>
@@ -211,15 +204,15 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Ideas Section - Netflix Trailers Style */}
-      <div className="container mx-auto px-6 mt-8">
+      {/* Ideas Section */}
+      <div ref={ideasSectionRef} className="container mx-auto px-6 mt-8 scroll-mt-20">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-2xl font-bold text-textLight mb-6"
+          className="text-3xl font-light text-textLight mb-6"
         >
-          {isOwnProfile ? 'Your Ideas' : `${user.name}'s Ideas`}
+          {isOwnProfile ? 'Your ideas' : `${user.name}'s ideas`}
         </motion.h2>
 
         {ideas.length === 0 ? (
@@ -228,15 +221,15 @@ export default function Profile() {
             animate={{ opacity: 1 }}
             className="text-center py-12"
           >
-            <p className="text-textGray text-lg mb-4">
-              {isOwnProfile ? "You haven't submitted any ideas yet." : "This user hasn't submitted any ideas yet."}
+            <p className="text-textGray text-lg mb-4 font-light">
+              {isOwnProfile ? "No ideas yet" : "This user hasn't submitted any ideas yet"}
             </p>
             {isOwnProfile && (
               <Link to="/swipe">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-netflixRed text-white px-6 py-3 rounded-lg font-semibold"
+                  className="bg-netflixRed text-white px-6 py-3 rounded-md font-medium"
                 >
                   Generate Ideas
                 </motion.button>
@@ -252,66 +245,41 @@ export default function Profile() {
                   initial={{ opacity: 0, x: 50 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ scale: 1.08, y: -10 }}
+                  transition={{ delay: index * 0.05 }}
+                  whileHover={{ scale: 1.05, y: -10 }}
                   className="flex-shrink-0 w-80 cursor-pointer group"
                 >
-                  <div className="bg-gradient-card rounded-lg overflow-hidden border border-gray-800 hover:border-netflixRed/50 transition-all shadow-card">
-                    {/* Idea Thumbnail */}
-                    <div className="relative h-48 bg-gradient-to-br from-darkPurple to-darkRed overflow-hidden">
-                      <motion.div
-                        animate={{
-                          scale: [1, 1.05, 1],
-                        }}
-                        transition={{ duration: 3, repeat: Infinity }}
-                        className="absolute inset-0 bg-gradient-to-br from-netflixRed/30 to-purple-600/30"
-                      />
+                  <div className="bg-darkBg/50 backdrop-blur-xl rounded-lg overflow-hidden border border-gray-900 hover:border-gray-800 transition-all">
+                    {/* Idea Header */}
+                    <div className="relative h-48 bg-gradient-to-br from-black via-darkBg to-black overflow-hidden">
+                      <div className="absolute inset-0 bg-netflixRed/5" />
                       
-                      {/* Idea Icon/Preview */}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-6xl">
-                          {idea.tags?.[0] === 'nft' ? '🎨' : 
-                           idea.tags?.[0] === 'food' ? '🍕' : 
-                           idea.tags?.[0] === 'social' ? '📱' : 
-                           idea.tags?.[0] === 'ai' ? '🤖' : '💡'}
-                        </span>
+                      {/* Idea Title centered */}
+                      <div className="absolute inset-0 flex items-center justify-center p-6">
+                        <h3 className="text-2xl font-light text-textLight text-center line-clamp-3">
+                          {idea.name}
+                        </h3>
                       </div>
-
-                      {/* Play Overlay on Hover */}
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        whileHover={{ opacity: 1 }}
-                        className="absolute inset-0 bg-black/60 flex items-center justify-center"
-                      >
-                        <div className="bg-netflixRed rounded-full p-4">
-                          <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M8 5v14l11-7z" />
-                          </svg>
-                        </div>
-                      </motion.div>
                     </div>
 
                     {/* Idea Info */}
                     <div className="p-5">
-                      <h3 className="text-xl font-bold text-textLight mb-2 line-clamp-1 group-hover:text-netflixRed transition">
-                        {idea.name}
-                      </h3>
-                      <p className="text-textGray text-sm mb-3 line-clamp-2">
+                      <p className="text-textGray text-sm mb-3 line-clamp-2 font-light">
                         {idea.oneLiner}
                       </p>
-                      <div className="flex items-center justify-between text-xs text-textGray">
+                      <div className="flex items-center justify-between text-xs text-textGray font-light">
                         <div className="flex items-center gap-3">
                           <div className="flex items-center gap-1">
-                            <span className="text-green-500">👍</span>
+                            <div className="w-2 h-2 bg-green-500 rounded-full" />
                             <span>{idea.swipeRightCount || 0}</span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <span className="text-red-500">👎</span>
+                            <div className="w-2 h-2 bg-red-500 rounded-full" />
                             <span>{idea.swipeLeftCount || 0}</span>
                           </div>
                         </div>
                         {idea.tags?.[0] && (
-                          <span className="px-2 py-1 bg-darkBg border border-gray-700 rounded text-textGray">
+                          <span className="px-2 py-1 bg-black/50 border border-gray-800 rounded text-textGray">
                             {idea.tags[0]}
                           </span>
                         )}
@@ -331,7 +299,7 @@ export default function Profile() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 flex items-center justify-center p-4"
           onClick={() => setEditing(false)}
         >
           <motion.div
@@ -339,25 +307,25 @@ export default function Profile() {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             onClick={(e) => e.stopPropagation()}
-            className="bg-cardBg rounded-2xl p-8 max-w-2xl w-full border border-gray-800"
+            className="bg-darkBg rounded-lg p-8 max-w-2xl w-full border border-gray-900"
           >
-            <h2 className="text-3xl font-bold text-textLight mb-6">Edit Profile</h2>
+            <h2 className="text-3xl font-light text-textLight mb-6">Edit profile</h2>
             <form onSubmit={handleSave} className="space-y-4">
               <div>
-                <label className="block text-textLight font-semibold mb-2">Name</label>
+                <label className="block text-textLight font-light mb-2">Name</label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full bg-darkBg border border-gray-700 rounded-lg px-4 py-3 text-textLight focus:outline-none focus:border-netflixRed transition"
+                  className="w-full bg-black border border-gray-800 rounded-md px-4 py-3 text-textLight focus:outline-none focus:border-netflixRed/50 transition font-light"
                 />
               </div>
               <div>
-                <label className="block text-textLight font-semibold mb-2">Role</label>
+                <label className="block text-textLight font-light mb-2">Role</label>
                 <select
                   value={formData.role}
                   onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                  className="w-full bg-darkBg border border-gray-700 rounded-lg px-4 py-3 text-textLight focus:outline-none focus:border-netflixRed transition"
+                  className="w-full bg-black border border-gray-800 rounded-md px-4 py-3 text-textLight focus:outline-none focus:border-netflixRed/50 transition font-light"
                 >
                   <option value="Visionary">Visionary</option>
                   <option value="Code">Code Monkey</option>
@@ -366,29 +334,29 @@ export default function Profile() {
                 </select>
               </div>
               <div>
-                <label className="block text-textLight font-semibold mb-2">Bio</label>
+                <label className="block text-textLight font-light mb-2">Bio</label>
                 <textarea
                   value={formData.bio}
                   onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                  className="w-full bg-darkBg border border-gray-700 rounded-lg px-4 py-3 text-textLight focus:outline-none focus:border-netflixRed transition resize-none"
+                  className="w-full bg-black border border-gray-800 rounded-md px-4 py-3 text-textLight focus:outline-none focus:border-netflixRed/50 transition resize-none font-light"
                   rows="4"
                 />
               </div>
               <div>
-                <label className="block text-textLight font-semibold mb-2">Avatar URL</label>
+                <label className="block text-textLight font-light mb-2">Avatar URL</label>
                 <input
                   type="url"
                   value={formData.avatar}
                   onChange={(e) => setFormData({ ...formData, avatar: e.target.value })}
-                  className="w-full bg-darkBg border border-gray-700 rounded-lg px-4 py-3 text-textLight focus:outline-none focus:border-netflixRed transition"
+                  className="w-full bg-black border border-gray-800 rounded-md px-4 py-3 text-textLight focus:outline-none focus:border-netflixRed/50 transition font-light"
                 />
               </div>
-              <div className="flex gap-4">
+              <div className="flex gap-4 pt-4">
                 <motion.button
-                  whileHover={{ scale: 1.02, boxShadow: '0 0 20px rgba(229, 9, 20, 0.5)' }}
+                  whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   type="submit"
-                  className="flex-1 bg-netflixRed text-white py-3 rounded-lg font-semibold"
+                  className="flex-1 bg-netflixRed text-white py-3 rounded-md font-medium"
                 >
                   Save Changes
                 </motion.button>
@@ -397,7 +365,7 @@ export default function Profile() {
                   whileTap={{ scale: 0.98 }}
                   type="button"
                   onClick={() => setEditing(false)}
-                  className="flex-1 bg-darkBg border border-gray-700 text-textLight py-3 rounded-lg font-semibold hover:border-netflixRed transition"
+                  className="flex-1 bg-transparent border border-gray-800 text-textLight py-3 rounded-md font-medium hover:border-gray-700 transition"
                 >
                   Cancel
                 </motion.button>

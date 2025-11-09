@@ -44,13 +44,10 @@ export default function Navbar() {
           {/* Logo */}
           <Link to="/swipe">
             <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="flex items-center gap-2"
+              whileHover={{ opacity: 0.8 }}
+              className="text-2xl font-light tracking-tight text-textLight"
             >
-              <span className="text-3xl font-bold bg-gradient-to-r from-netflixRed to-red-400 bg-clip-text text-transparent">
-                F
-              </span>
-              <span className="text-xl font-semibold text-textLight">oundrly</span>
+              found<span className="text-netflixRed">r</span>ly
             </motion.div>
           </Link>
 

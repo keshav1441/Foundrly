@@ -49,19 +49,19 @@ export default function Feed() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-dark flex items-center justify-center pt-20">
+      <div className="min-h-screen bg-black flex items-center justify-center pt-20">
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-          className="w-16 h-16 border-4 border-netflixRed border-t-transparent rounded-full"
+          className="w-16 h-16 border-2 border-netflixRed border-t-transparent rounded-full"
         />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-dark pt-20 pb-12 px-4">
-      <div className="container mx-auto max-w-4xl">
+    <div className="min-h-screen bg-black pt-20 pb-12 px-4">
+      <div className="container mx-auto max-w-3xl">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -69,21 +69,21 @@ export default function Feed() {
           className="flex items-center justify-between mb-12"
         >
           <div>
-            <h1 className="text-5xl font-bold text-textLight mb-2">
-              Meme Feed
+            <h1 className="text-4xl font-light text-textLight mb-2 tracking-tight">
+              Feed
             </h1>
-            <p className="text-textGray">
-              Trending Founder Fails & Pitch Disasters
+            <p className="text-textGray font-light">
+              Founder fails & pitch disasters
             </p>
           </div>
 
           <motion.button
-            whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(229, 9, 20, 0.5)' }}
+            whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowForm(!showForm)}
-            className="bg-netflixRed text-white px-6 py-3 rounded-lg font-semibold"
+            className="bg-netflixRed text-white px-6 py-2.5 rounded-md font-medium hover:bg-netflixRed/90 transition"
           >
-            {showForm ? 'Cancel' : '+ Post Meme'}
+            {showForm ? 'Cancel' : '+ Post'}
           </motion.button>
         </motion.div>
 
@@ -93,24 +93,24 @@ export default function Feed() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="bg-gradient-card rounded-xl p-6 border border-gray-800 mb-8"
+            className="bg-darkBg/50 backdrop-blur-xl rounded-lg border border-gray-900 p-6 mb-8"
           >
             <form onSubmit={handleSubmitMeme} className="space-y-4">
               <div>
-                <label className="block text-textLight font-semibold mb-2">
+                <label className="block text-textLight font-light mb-2">
                   Content
                 </label>
                 <textarea
                   value={newMeme.content}
                   onChange={(e) => setNewMeme({ ...newMeme, content: e.target.value })}
                   placeholder="Share your startup wisdom..."
-                  className="w-full bg-darkBg border border-gray-700 rounded-lg px-4 py-3 text-textLight focus:outline-none focus:border-netflixRed transition resize-none"
+                  className="w-full bg-black border border-gray-800 rounded-md px-4 py-3 text-textLight focus:outline-none focus:border-netflixRed/50 transition resize-none font-light"
                   rows="3"
                   required
                 />
               </div>
               <div>
-                <label className="block text-textLight font-semibold mb-2">
+                <label className="block text-textLight font-light mb-2">
                   Image URL (optional)
                 </label>
                 <input
@@ -118,16 +118,16 @@ export default function Feed() {
                   value={newMeme.imageUrl}
                   onChange={(e) => setNewMeme({ ...newMeme, imageUrl: e.target.value })}
                   placeholder="https://..."
-                  className="w-full bg-darkBg border border-gray-700 rounded-lg px-4 py-3 text-textLight focus:outline-none focus:border-netflixRed transition"
+                  className="w-full bg-black border border-gray-800 rounded-md px-4 py-3 text-textLight focus:outline-none focus:border-netflixRed/50 transition font-light"
                 />
               </div>
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 type="submit"
-                className="w-full bg-netflixRed text-white py-3 rounded-lg font-semibold hover:bg-accentHover transition"
+                className="w-full bg-netflixRed text-white py-3 rounded-md font-medium hover:bg-netflixRed/90 transition"
               >
-                Post Meme
+                Post
               </motion.button>
             </form>
           </motion.div>
@@ -140,11 +140,11 @@ export default function Feed() {
               key={meme._id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="bg-gradient-card rounded-xl overflow-hidden border border-gray-800 shadow-card hover:border-netflixRed/50 transition-all"
+              transition={{ delay: index * 0.05 }}
+              className="bg-darkBg/50 backdrop-blur-xl rounded-lg overflow-hidden border border-gray-900 hover:border-gray-800 transition-all"
             >
               {meme.imageUrl && (
-                <div className="relative h-64 overflow-hidden">
+                <div className="relative h-80 overflow-hidden">
                   <img
                     src={meme.imageUrl}
                     alt="Meme"
@@ -154,35 +154,35 @@ export default function Feed() {
               )}
 
               <div className="p-6">
-                <p className="text-textLight text-lg mb-4">{meme.content}</p>
+                <p className="text-textLight text-lg mb-6 font-light leading-relaxed">{meme.content}</p>
 
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full overflow-hidden">
-                        <img
-                          src={meme.submittedBy?.avatar || `https://ui-avatars.com/api/?name=${meme.submittedBy?.name}`}
-                          alt={meme.submittedBy?.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <span className="text-textGray text-sm">
-                        {meme.submittedBy?.name}
-                      </span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-800">
+                      <img
+                        src={meme.submittedBy?.avatar || `https://ui-avatars.com/api/?name=${meme.submittedBy?.name}`}
+                        alt={meme.submittedBy?.name}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
+                    <span className="text-textGray text-sm font-light">
+                      {meme.submittedBy?.name}
+                    </span>
                   </div>
 
                   <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => handleUpvote(meme._id)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition ${
+                    className={`flex items-center gap-2 px-4 py-2 rounded-md font-light transition ${
                       meme.upvotedBy?.includes(user._id)
-                        ? 'bg-netflixRed text-white'
-                        : 'bg-darkBg border border-gray-700 text-textGray hover:border-netflixRed'
+                        ? 'bg-netflixRed/20 text-netflixRed border border-netflixRed/30'
+                        : 'bg-black/50 border border-gray-800 text-textGray hover:border-gray-700'
                     }`}
                   >
-                    <span>👍</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                    </svg>
                     <span>{meme.upvotes || 0}</span>
                   </motion.button>
                 </div>
@@ -190,6 +190,12 @@ export default function Feed() {
             </motion.div>
           ))}
         </div>
+
+        {memes.length === 0 && (
+          <div className="text-center py-20">
+            <p className="text-textGray text-lg font-light">No posts yet. Be the first to share!</p>
+          </div>
+        )}
       </div>
     </div>
   );
