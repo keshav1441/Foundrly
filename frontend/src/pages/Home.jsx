@@ -1,17 +1,33 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import { API_BASE_URL } from '../config/api.js';
 
 export default function Home() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, emailLogin, register, loading } = useAuth();
   const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState('');
+
+  // Check for OAuth error in URL
+  useEffect(() => {
+    const errorParam = searchParams.get('error');
+    if (errorParam) {
+      const errorMessages = {
+        'login_failed': 'Google login failed. Please try again.',
+        'no_code': 'No authorization code received from Google.',
+        'oauth_not_configured': 'OAuth is not properly configured on the server.',
+      };
+      setError(errorMessages[errorParam] || `Login error: ${errorParam}`);
+      // Clear the error from URL
+      navigate('/', { replace: true });
+    }
+  }, [searchParams, navigate]);
 
   // Redirect to swipe if already logged in
   useEffect(() => {

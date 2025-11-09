@@ -129,8 +129,19 @@ router.get("/google/callback", async (req, res) => {
     )}`;
     res.redirect(redirectUrl);
   } catch (error) {
+    console.error("❌ OAuth callback error:", error);
+    console.error("❌ Error details:", {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      code: error.code,
+      stack: error.stack,
+    });
+
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
-    res.redirect(`${frontendUrl}?error=login_failed`);
+    const errorMessage =
+      error.response?.data?.error || error.message || "login_failed";
+    res.redirect(`${frontendUrl}?error=${encodeURIComponent(errorMessage)}`);
   }
 });
 
