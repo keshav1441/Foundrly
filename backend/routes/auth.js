@@ -195,12 +195,42 @@ router.post("/register", async (req, res) => {
     res.status(201).json({ access_token: token, user: userResponse });
   } catch (error) {
     console.error("Register error:", error);
+    console.error("Register error details:", {
+      message: error.message,
+      name: error.name,
+      code: error.code,
+      stack: error.stack,
+    });
+
+    // Handle duplicate key error (MongoDB unique constraint)
     if (error.code === 11000) {
       return res
         .status(400)
         .json({ error: "User with this email already exists" });
     }
-    res.status(500).json({ error: "Registration failed" });
+
+    // Handle validation errors
+    if (error.name === "ValidationError") {
+      const errors = Object.values(error.errors).map((e) => e.message);
+      return res.status(400).json({
+        error: "Validation failed",
+        details: errors,
+      });
+    }
+
+    // Handle database connection errors
+    if (error.name === "MongoServerError" || error.name === "MongooseError") {
+      return res.status(500).json({
+        error: "Database error. Please try again later.",
+      });
+    }
+
+    // Return more detailed error in development, generic in production
+    const isDevelopment = process.env.NODE_ENV !== "production";
+    res.status(500).json({
+      error: "Registration failed",
+      ...(isDevelopment && { details: error.message }),
+    });
   }
 });
 

@@ -75,6 +75,27 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Middleware to check database connection for database-dependent routes
+app.use("/api", (req, res, next) => {
+  // Skip database check for health check endpoints
+  if (req.path === "/health" || req.path === "/status") {
+    return next();
+  }
+
+  // Check if MongoDB is connected
+  if (mongoose.connection.readyState !== 1) {
+    console.error(
+      `❌ Database not connected. ReadyState: ${mongoose.connection.readyState}`
+    );
+    return res.status(503).json({
+      error:
+        "Service temporarily unavailable. Database connection not established.",
+    });
+  }
+
+  next();
+});
+
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
@@ -100,15 +121,39 @@ import("./routes/requests.js").then((module) => {
   module.setIO(io);
 });
 
-// Connect to MongoDB
+// Connect to MongoDB with better error handling
 mongoose
-  .connect(MONGO_URI)
+  .connect(MONGO_URI, {
+    serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+    socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
+  })
   .then(() => {
     console.log("✅ Connected to MongoDB");
+    console.log(
+      `📊 MongoDB connection state: ${mongoose.connection.readyState}`
+    );
   })
   .catch((error) => {
     console.error("❌ MongoDB connection error:", error);
+    console.error("❌ Error details:", {
+      message: error.message,
+      name: error.name,
+      code: error.code,
+    });
   });
+
+// Handle connection events
+mongoose.connection.on("error", (error) => {
+  console.error("❌ MongoDB connection error:", error);
+});
+
+mongoose.connection.on("disconnected", () => {
+  console.warn("⚠️  MongoDB disconnected");
+});
+
+mongoose.connection.on("reconnected", () => {
+  console.log("✅ MongoDB reconnected");
+});
 
 // Start server
 server.listen(PORT, () => {
