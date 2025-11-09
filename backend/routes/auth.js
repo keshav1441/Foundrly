@@ -9,26 +9,28 @@ const router = express.Router();
 // Google OAuth - Initiate OAuth flow
 router.get("/google", (req, res) => {
   const clientID = process.env.GOOGLE_CLIENT_ID;
-  const redirectURI = `${
+
+  // Construct redirect URI - ensure BACKEND_URL has no trailing slash
+  const backendUrl = (
     process.env.BACKEND_URL || "http://localhost:4000"
-  }/api/auth/google/callback`;
+  ).replace(/\/$/, "");
+  const redirectURI = `${backendUrl}/api/auth/google/callback`;
 
   if (!clientID || clientID === "mock") {
-    return res
-      .status(400)
-      .json({
-        error:
-          "Google OAuth not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env file.",
-      });
+    return res.status(400).json({
+      error:
+        "Google OAuth not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env file.",
+    });
   }
 
-  // Ensure no trailing slash
-  const cleanRedirectURI = redirectURI.replace(/\/$/, "");
+  // Log the redirect URI for debugging
+  console.log("🔐 OAuth redirect URI:", redirectURI);
+  console.log("🔐 BACKEND_URL from env:", process.env.BACKEND_URL);
 
   const authURL =
     `https://accounts.google.com/o/oauth2/v2/auth?` +
     `client_id=${clientID}&` +
-    `redirect_uri=${encodeURIComponent(cleanRedirectURI)}&` +
+    `redirect_uri=${encodeURIComponent(redirectURI)}&` +
     `response_type=code&` +
     `scope=email profile&` +
     `access_type=offline`;
@@ -47,12 +49,15 @@ router.get("/google/callback", async (req, res) => {
 
     const clientID = process.env.GOOGLE_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-    const redirectURI = `${
-      process.env.BACKEND_URL || "http://localhost:4000"
-    }/api/auth/google/callback`;
 
-    // Ensure no trailing slash
-    const cleanRedirectURI = redirectURI.replace(/\/$/, "");
+    // Construct redirect URI - ensure BACKEND_URL has no trailing slash
+    const backendUrl = (
+      process.env.BACKEND_URL || "http://localhost:4000"
+    ).replace(/\/$/, "");
+    const redirectURI = `${backendUrl}/api/auth/google/callback`;
+
+    // Log for debugging
+    console.log("🔐 Callback redirect URI:", redirectURI);
 
     if (
       !clientID ||
@@ -74,7 +79,7 @@ router.get("/google/callback", async (req, res) => {
         code,
         client_id: clientID,
         client_secret: clientSecret,
-        redirect_uri: cleanRedirectURI,
+        redirect_uri: redirectURI,
         grant_type: "authorization_code",
       }
     );
@@ -140,13 +145,17 @@ router.post("/register", async (req, res) => {
     }
 
     if (password.length < 6) {
-      return res.status(400).json({ error: "Password must be at least 6 characters" });
+      return res
+        .status(400)
+        .json({ error: "Password must be at least 6 characters" });
     }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ error: "User with this email already exists" });
+      return res
+        .status(400)
+        .json({ error: "User with this email already exists" });
     }
 
     // Hash password
@@ -176,7 +185,9 @@ router.post("/register", async (req, res) => {
   } catch (error) {
     console.error("Register error:", error);
     if (error.code === 11000) {
-      return res.status(400).json({ error: "User with this email already exists" });
+      return res
+        .status(400)
+        .json({ error: "User with this email already exists" });
     }
     res.status(500).json({ error: "Registration failed" });
   }
@@ -201,7 +212,8 @@ router.post("/login", async (req, res) => {
     // Check if user has a password (not OAuth-only user)
     if (!user.password) {
       return res.status(401).json({
-        error: "This account was created with OAuth. Please use Google to sign in.",
+        error:
+          "This account was created with OAuth. Please use Google to sign in.",
       });
     }
 
