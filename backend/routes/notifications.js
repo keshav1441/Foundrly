@@ -220,8 +220,8 @@ router.post("/read-all", authenticateJWT, async (req, res) => {
     );
     console.log("Messages marked as read:", messagesResult.modifiedCount);
 
-    // Mark all pending requests as viewed
-    const requestsResult = await Request.updateMany(
+    // Mark all pending requests as viewed (received by user)
+    const pendingRequestsResult = await Request.updateMany(
       {
         ideaOwner: userId,
         status: "pending",
@@ -229,12 +229,30 @@ router.post("/read-all", authenticateJWT, async (req, res) => {
       },
       { viewed: true }
     );
-    console.log("Requests marked as viewed:", requestsResult.modifiedCount);
+    console.log(
+      "Pending requests marked as viewed:",
+      pendingRequestsResult.modifiedCount
+    );
+
+    // Mark all accepted requests as viewed (sent by user)
+    const acceptedRequestsResult = await Request.updateMany(
+      {
+        requester: userId,
+        status: "accepted",
+        viewed: false,
+      },
+      { viewed: true }
+    );
+    console.log(
+      "Accepted requests marked as viewed:",
+      acceptedRequestsResult.modifiedCount
+    );
 
     res.json({
       success: true,
       messagesMarked: messagesResult.modifiedCount,
-      requestsMarked: requestsResult.modifiedCount,
+      pendingRequestsMarked: pendingRequestsResult.modifiedCount,
+      acceptedRequestsMarked: acceptedRequestsResult.modifiedCount,
     });
   } catch (error) {
     console.error("Mark all notifications read error:", error);

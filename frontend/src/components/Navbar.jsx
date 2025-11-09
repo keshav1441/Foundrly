@@ -62,6 +62,10 @@ export default function Navbar() {
         socket.on('new_message_notification', () => {
           loadNotifications();
         });
+
+        socket.on('request_accepted_notification', () => {
+          loadNotifications();
+        });
       });
     }
 
@@ -72,6 +76,7 @@ export default function Navbar() {
       if (socketRef.current) {
         socketRef.current.off('new_request_notification');
         socketRef.current.off('new_message_notification');
+        socketRef.current.off('request_accepted_notification');
         socketRef.current.disconnect();
         socketRef.current = null;
       }

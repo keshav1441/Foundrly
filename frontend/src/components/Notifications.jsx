@@ -37,24 +37,35 @@ export default function Notifications({ isOpen, onClose, onNotificationsChange }
       socketInstance.on('new_request_notification', (data) => {
         console.log('New request notification:', data);
         loadNotifications(); // Reload notifications
+        onNotificationsChange?.(); // Update navbar count
       });
 
       // Listen for new message notifications
       socketInstance.on('new_message_notification', (data) => {
         console.log('New message notification:', data);
         loadNotifications(); // Reload notifications
+        onNotificationsChange?.(); // Update navbar count
       });
 
       // Listen for request accepted notifications
       socketInstance.on('request_accepted_notification', (data) => {
         console.log('Request accepted notification:', data);
         loadNotifications(); // Reload notifications
+        onNotificationsChange?.(); // Update navbar count
+      });
+
+      // Listen for match notifications (also triggers when requests are accepted)
+      socketInstance.on('match_notification', (data) => {
+        console.log('Match notification:', data);
+        loadNotifications(); // Reload notifications
+        onNotificationsChange?.(); // Update navbar count
       });
 
       return () => {
         socketInstance.off('new_request_notification');
         socketInstance.off('new_message_notification');
         socketInstance.off('request_accepted_notification');
+        socketInstance.off('match_notification');
         socketInstance.disconnect();
         socketRef.current = null;
       };
@@ -88,25 +99,23 @@ export default function Notifications({ isOpen, onClose, onNotificationsChange }
   };
 
   const handleNotificationClick = async (notification) => {
+    // Mark notification as read when clicked
+    try {
+      await api.markNotificationRead(notification.id, notification.type);
+      await loadNotifications(); // Reload to update UI
+      onNotificationsChange?.(); // Update navbar count
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error);
+    }
+
+    // Navigate based on notification type
     if (notification.type === 'request') {
       navigate('/requests');
       onClose();
     } else if (notification.type === 'request_accepted') {
-      // Mark notification as read and navigate to matches
-      try {
-        await api.markNotificationRead(notification.id, 'request_accepted');
-      } catch (error) {
-        console.error('Failed to mark notification as read:', error);
-      }
       navigate('/matches');
       onClose();
     } else if (notification.type === 'message') {
-      // Mark message as read
-      try {
-        await api.markNotificationRead(notification.id, 'message');
-      } catch (error) {
-        console.error('Failed to mark notification as read:', error);
-      }
       navigate(`/chat/${notification.data.match._id}`);
       onClose();
     }
