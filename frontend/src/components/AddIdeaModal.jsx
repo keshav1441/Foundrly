@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 import { api } from '../api/api';
 
 export default function AddIdeaModal({ isOpen, onClose, onIdeaAdded, onIdeasGenerated, onIdeaGenerated }) {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState('add'); // 'add' or 'generate'
   const [ideaName, setIdeaName] = useState('');
   const [oneLiner, setOneLiner] = useState('');
@@ -21,7 +23,7 @@ export default function AddIdeaModal({ isOpen, onClose, onIdeaAdded, onIdeasGene
   const handleAddIdea = async (e) => {
     e.preventDefault();
     if (!ideaName.trim() || !oneLiner.trim()) {
-      alert('Please fill in both idea name and description');
+      showToast('Please fill in both idea name and description', 'error');
       return;
     }
 
@@ -50,12 +52,12 @@ export default function AddIdeaModal({ isOpen, onClose, onIdeaAdded, onIdeasGene
         onIdeaGenerated?.(generatedIdea);
       } else {
         console.error('Unexpected response format:', response);
-        alert('Unexpected response from server. Please try again.');
+        showToast('Unexpected response from server. Please try again.', 'error');
       }
     } catch (error) {
       console.error('Failed to generate ideas:', error);
       const errorMessage = error.response?.data?.error || error.message || 'Failed to generate ideas. Please try again.';
-      alert(errorMessage);
+      showToast(errorMessage, 'error');
     } finally {
       setGenerating(false);
     }

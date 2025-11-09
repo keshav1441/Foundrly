@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 import { api } from '../api/api';
 
 export default function Feed() {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const [memes, setMemes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newMeme, setNewMeme] = useState({ title: '', description: '', imageUrl: '' });
@@ -35,7 +37,7 @@ export default function Feed() {
       loadMemes();
     } catch (error) {
       console.error('Failed to submit meme:', error);
-      alert('Failed to submit meme. Please try again.');
+      showToast('Failed to submit meme. Please try again.', 'error');
     }
   };
 

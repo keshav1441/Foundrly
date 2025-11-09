@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 import { api } from '../api/api';
+import ConfirmationModal from './ConfirmationModal';
 
 export default function IdeaDetailModal({ isOpen, onClose, idea, onUpdate, canEdit = false }) {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState('');
   const [oneLiner, setOneLiner] = useState('');
@@ -12,6 +15,7 @@ export default function IdeaDetailModal({ isOpen, onClose, idea, onUpdate, canEd
   const [tagInput, setTagInput] = useState('');
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     if (idea) {
@@ -33,12 +37,12 @@ export default function IdeaDetailModal({ isOpen, onClose, idea, onUpdate, canEd
 
   const handleSave = async () => {
     if (!name.trim() || !oneLiner.trim()) {
-      alert('Please fill in both idea name and description');
+      showToast('Please fill in both idea name and description', 'error');
       return;
     }
 
     if (!idea?._id) {
-      alert('Invalid idea');
+      showToast('Invalid idea', 'error');
       return;
     }
 
@@ -49,12 +53,13 @@ export default function IdeaDetailModal({ isOpen, onClose, idea, onUpdate, canEd
         oneLiner: oneLiner.trim(),
         tags: tags,
       });
+      showToast('Idea updated successfully', 'success');
       onUpdate?.();
       setIsEditing(false);
       handleClose();
     } catch (error) {
       console.error('Failed to update idea:', error);
-      alert('Failed to update idea. Please try again.');
+      showToast('Failed to update idea. Please try again.', 'error');
     } finally {
       setSaving(false);
     }
@@ -62,22 +67,23 @@ export default function IdeaDetailModal({ isOpen, onClose, idea, onUpdate, canEd
 
   const handleDelete = async () => {
     if (!idea?._id) {
-      alert('Invalid idea');
+      showToast('Invalid idea', 'error');
       return;
     }
 
-    if (!confirm('Are you sure you want to delete this idea? This action cannot be undone.')) {
-      return;
-    }
+    setShowDeleteConfirm(true);
+  };
 
+  const confirmDelete = async () => {
     setDeleting(true);
     try {
       await api.deleteIdea(idea._id);
+      showToast('Idea deleted successfully', 'success');
       onUpdate?.();
       handleClose();
     } catch (error) {
       console.error('Failed to delete idea:', error);
-      alert('Failed to delete idea. Please try again.');
+      showToast('Failed to delete idea. Please try again.', 'error');
     } finally {
       setDeleting(false);
     }
@@ -314,6 +320,18 @@ export default function IdeaDetailModal({ isOpen, onClose, idea, onUpdate, canEd
           </div>
         </motion.div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={confirmDelete}
+        title="Delete Idea"
+        message="Are you sure you want to delete this idea? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        danger={true}
+      />
     </AnimatePresence>
   );
 }

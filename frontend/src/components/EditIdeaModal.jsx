@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useToast } from '../contexts/ToastContext';
 import { api } from '../api/api';
 
 export default function EditIdeaModal({ isOpen, onClose, idea, onSave, onRegenerate }) {
+  const { showToast } = useToast();
   const [name, setName] = useState('');
   const [oneLiner, setOneLiner] = useState('');
   const [tags, setTags] = useState([]);
@@ -28,7 +30,7 @@ export default function EditIdeaModal({ isOpen, onClose, idea, onSave, onRegener
 
   const handleSave = async () => {
     if (!name.trim() || !oneLiner.trim()) {
-      alert('Please fill in both idea name and description');
+      showToast('Please fill in both idea name and description', 'error');
       return;
     }
 
@@ -39,11 +41,12 @@ export default function EditIdeaModal({ isOpen, onClose, idea, onSave, onRegener
         oneLiner: oneLiner.trim(),
         tags: tags,
       });
+      showToast('Idea saved successfully', 'success');
       onSave?.();
       handleClose();
     } catch (error) {
       console.error('Failed to save idea:', error);
-      alert('Failed to save idea. Please try again.');
+      showToast('Failed to save idea. Please try again.', 'error');
     } finally {
       setSaving(false);
     }
@@ -62,7 +65,7 @@ export default function EditIdeaModal({ isOpen, onClose, idea, onSave, onRegener
     } catch (error) {
       console.error('Failed to regenerate idea:', error);
       const errorMessage = error.response?.data?.error || error.message || 'Failed to regenerate idea. Please try again.';
-      alert(errorMessage);
+      showToast(errorMessage, 'error');
     } finally {
       setRegenerating(false);
     }

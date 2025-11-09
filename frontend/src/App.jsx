@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ToastProvider } from './contexts/ToastContext';
 import Navbar from './components/Navbar';
 import Marketing from './pages/Marketing';
 import Home from './pages/Home';
@@ -72,10 +73,12 @@ function AppRoutes() {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <Navbar />
-        <AppRoutes />
-      </Router>
+      <ToastProvider>
+        <Router>
+          <Navbar />
+          <AppRoutes />
+        </Router>
+      </ToastProvider>
     </AuthProvider>
   );
 }

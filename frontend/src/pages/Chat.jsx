@@ -2,12 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 import { api } from '../api/api';
 import { io } from 'socket.io-client';
 
 export default function Chat() {
   const { matchId: urlMatchId } = useParams();
   const { user } = useAuth();
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const [matches, setMatches] = useState([]);
   const [selectedMatchId, setSelectedMatchId] = useState(urlMatchId || null);
@@ -196,7 +198,7 @@ export default function Chat() {
       console.error('Failed to send message:', error);
       // Restore message on error
       setNewMessage(messageContent);
-      alert(error.response?.data?.error || 'Failed to send message. Please try again.');
+      showToast(error.response?.data?.error || 'Failed to send message. Please try again.', 'error');
     }
   };
 

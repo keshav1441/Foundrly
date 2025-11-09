@@ -2,12 +2,14 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 import { api } from '../api/api';
 import IdeaDetailModal from '../components/IdeaDetailModal';
 
 export default function Profile() {
   const { userId } = useParams();
   const { user: authUser, logout, fetchUser } = useAuth();
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [ideas, setIdeas] = useState([]);
@@ -69,7 +71,7 @@ export default function Profile() {
       setEditing(false);
     } catch (error) {
       console.error('Failed to update profile:', error);
-      alert('Failed to update profile. Please try again.');
+      showToast('Failed to update profile. Please try again.', 'error');
     }
   };
 
