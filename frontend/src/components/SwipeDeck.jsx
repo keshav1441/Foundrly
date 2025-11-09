@@ -101,14 +101,12 @@ export default function SwipeDeck() {
 
   // Reset motion values when a new card appears
   useEffect(() => {
-    // Reset all motion values and state when a new card appears
+    // Reset motion values when a new card appears
+    // Don't reset swipeDirection here - it's needed for the exit animation
+    // and will be reset in handleSwipe after the animation completes
     x.set(0);
     setIsDragging(false);
-    setSwipeDirection(null);
-    swipeDirectionRef.current = null;
     setClickedButton(null);
-    exitingCardIdRef.current = null;
-    exitingCardDirectionRef.current = null;
   }, [currentIndex, x]);
 
   const handleDragStart = () => {
@@ -176,10 +174,10 @@ export default function SwipeDeck() {
       <div className="relative flex-1 flex items-center justify-center min-h-0">
 
         {/* Card */}
-        <AnimatePresence mode="wait" custom={exitingCardDirectionRef.current}>
+        <AnimatePresence mode="wait" custom={swipeDirection}>
           <motion.div
             key={currentIdea._id}
-            custom={exitingCardDirectionRef.current}
+            custom={swipeDirection}
             drag={!swipeDirection ? "x" : false}
             dragConstraints={{ left: -200, right: 200 }}
             dragElastic={0.7}
@@ -199,8 +197,11 @@ export default function SwipeDeck() {
               rotate: 0
             }}
             exit={(direction) => {
+              // Use direction from custom prop, fallback to exitingCardDirectionRef if needed
+              const exitDirection = direction || exitingCardDirectionRef.current || 'left';
+              const exitX = exitDirection === 'right' ? 400 : -400;
+              
               // Animate x motion value to exit position
-              const exitX = direction === 'right' ? 400 : -400;
               animate(x, exitX, {
                 type: 'spring',
                 stiffness: 400,
@@ -211,7 +212,7 @@ export default function SwipeDeck() {
               return {
                 scale: 0.9,
                 opacity: 0,
-                rotate: direction === 'right' ? 20 : -20,
+                rotate: exitDirection === 'right' ? 20 : -20,
               };
             }}
             transition={{
