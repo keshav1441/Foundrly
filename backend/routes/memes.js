@@ -46,29 +46,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Get meme by ID
-router.get("/:id", async (req, res) => {
-  try {
-    const meme = await Meme.findById(req.params.id).populate(
-      "submittedBy",
-      "name avatar"
-    );
-    if (!meme) {
-      return res.status(404).json({ error: "Meme not found" });
-    }
-
-    // Get comment count
-    const commentCount = await Comment.countDocuments({ meme: req.params.id });
-    const memeObj = meme.toObject();
-    memeObj.commentCount = commentCount;
-
-    res.json(memeObj);
-  } catch (error) {
-    console.error("Get meme error:", error);
-    res.status(500).json({ error: "Failed to get meme" });
-  }
-});
-
 // Create meme
 router.post("/", authenticateJWT, async (req, res) => {
   try {

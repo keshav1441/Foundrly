@@ -1,6 +1,5 @@
 import express from "express";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import Idea from "../models/Idea.js";
 import { authenticateJWT } from "../middleware/auth.js";
 
 const router = express.Router();
@@ -29,25 +28,6 @@ function initializeAIServices() {
     );
   }
 }
-
-// Generate ideas
-router.post("/generate", authenticateJWT, async (req, res) => {
-  try {
-    const { count = 5 } = req.body;
-    const ideas = [];
-
-    // Generate ideas one at a time
-    for (let i = 0; i < count; i++) {
-      const ideaArray = await generateIdeas(1);
-      ideas.push(ideaArray[0]);
-    }
-
-    res.json({ ideas });
-  } catch (error) {
-    console.error("Generate ideas error:", error);
-    res.status(500).json({ error: "Failed to generate ideas" });
-  }
-});
 
 // Generate ideas as editable templates (returns ideas for user to edit before saving)
 router.post("/generate-and-save", authenticateJWT, async (req, res) => {
@@ -83,53 +63,6 @@ router.post("/generate-and-save", authenticateJWT, async (req, res) => {
     });
   }
 });
-
-// Polish pitch
-router.post("/pitchpolish", authenticateJWT, async (req, res) => {
-  try {
-    const { idea } = req.body;
-    const polished = await pitchPolish(idea);
-    res.json({ polished });
-  } catch (error) {
-    console.error("Pitch polish error:", error);
-    res.status(500).json({ error: "Failed to polish pitch" });
-  }
-});
-
-async function generateIdeas(count = 5) {
-  // Initialize if not already done (lazy initialization)
-  initializeAIServices();
-
-  if (gemini) {
-    try {
-      const model = gemini.getGenerativeModel({
-        model: "gemini-2.5-flash",
-      });
-      // Generate one idea at a time
-      const prompt = `You are a startup idea generator that creates hilariously bad startup ideas. Generate 1 hilariously bad startup idea. Make it absurd, funny, and clearly a terrible business idea. Format as: "Idea Name: One-liner description". Return only the idea, no numbering or extra text.`;
-
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text().trim();
-
-      // Clean up the response
-      const cleanedText = text
-        .replace(/^\d+\.\s*/, "")
-        .replace(/^[-*]\s*/, "")
-        .trim();
-
-      return [cleanedText];
-    } catch (error) {
-      console.error("Gemini error:", error);
-      throw error;
-    }
-  }
-
-  // If Gemini is not available, throw an error
-  throw new Error(
-    "No AI service available. Please configure GEMINI_API_KEY in your .env file."
-  );
-}
 
 async function generateCompleteIdea() {
   // Initialize if not already done (lazy initialization)
@@ -189,32 +122,6 @@ Make the idea absurd, funny, and clearly a terrible business idea. Generate 2-4 
         oneLiner: oneLiner || "",
         tags: tags,
       };
-    } catch (error) {
-      console.error("Gemini error:", error);
-      throw error;
-    }
-  }
-
-  // If Gemini is not available, throw an error
-  throw new Error(
-    "No AI service available. Please configure GEMINI_API_KEY in your .env file."
-  );
-}
-
-async function pitchPolish(idea) {
-  // Initialize if not already done (lazy initialization)
-  initializeAIServices();
-
-  if (gemini) {
-    try {
-      const model = gemini.getGenerativeModel({
-        model: "gemini-2.5-flash",
-      });
-      const prompt = `Rewrite this bad startup idea as a fake VC pitch (2-3 sentences, professional but absurd): ${idea}`;
-
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      return response.text();
     } catch (error) {
       console.error("Gemini error:", error);
       throw error;

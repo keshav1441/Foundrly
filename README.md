@@ -145,42 +145,49 @@ The frontend will run on `http://localhost:3000`
 
 ## 🎮 Usage
 
-1. **Sign Up/In**: 
+1. **Sign Up/In**:
+
    - Create an account with email/password
    - Or sign in with Google OAuth
    - Or use the mock login for quick testing
 
-2. **Swipe Ideas**: 
+2. **Swipe Ideas**:
+
    - Swipe right (✓) on ideas you like
    - Swipe left (✕) to pass
    - When you swipe right on someone else's idea, a modal appears to send a request message
 
-3. **Send Requests**: 
+3. **Send Requests**:
+
    - When you swipe right on an idea, enter a message to the idea creator
    - The idea creator will see your request on the Requests page
 
-4. **Accept Requests**: 
+4. **Accept Requests**:
+
    - View pending requests on the Requests page
    - Accept or reject requests
    - When accepted, you both match and can chat
 
-5. **Chat**: 
+5. **Chat**:
+
    - Real-time chat with your matches
    - Split-screen UI: matches list on left, active chat on right
    - Messages are organized by idea
 
-6. **Notifications**: 
+6. **Notifications**:
+
    - Real-time notifications for incoming requests and messages
    - Click the bell icon in the navbar to view notifications
    - Mark individual notifications as read or mark all as read
    - Only unread notifications are displayed
 
-7. **Feed**: 
+7. **Feed**:
+
    - Browse memes (randomized order)
    - Submit memes with title and description
    - Upvote and comment on memes
 
-8. **Profile**: 
+8. **Profile**:
    - View your profile or other users' profiles
    - See ideas you've worked on in a carousel
    - Edit your own profile
@@ -250,7 +257,6 @@ The frontend will run on `http://localhost:3000`
 
 - `GET /api/memes` - List memes (sorted by upvotes, most recent first)
   - Query params: `limit` (number)
-- `GET /api/memes/:id` - Get meme by ID
 - `POST /api/memes` - Submit meme with title and description (requires authentication)
 - `POST /api/memes/:id/upvote` - Upvote a meme (requires authentication)
 - `GET /api/memes/:id/comments` - Get comments for a meme
@@ -258,12 +264,9 @@ The frontend will run on `http://localhost:3000`
 
 ### AI
 
-- `POST /api/ai/generate` - Generate ideas using AI (requires authentication and API keys)
-  - Body: `{ count: number }` (default: 5)
-- `POST /api/ai/generate-and-save` - Generate and automatically save ideas (requires authentication and API keys)
-  - Body: `{ count: number }`
-- `POST /api/ai/pitchpolish` - Polish an idea pitch using AI (requires authentication and API keys)
-  - Body: `{ ideaId, pitch }`
+- `POST /api/ai/generate-and-save` - Generate ideas as editable templates (requires authentication and API keys)
+  - Body: `{ count: number }` (default: 1)
+  - Returns ideas for user to edit before saving
 
 ## 🔧 Scripts
 
