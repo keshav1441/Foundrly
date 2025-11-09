@@ -9,7 +9,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "clear-data": "node scripts/clearData.js"
+    "clear-data": "node scripts/clearData.js",
+    "seed-data": "node scripts/seedData.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.2.0",

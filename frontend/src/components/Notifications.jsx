@@ -45,9 +45,16 @@ export default function Notifications({ isOpen, onClose, onNotificationsChange }
         loadNotifications(); // Reload notifications
       });
 
+      // Listen for request accepted notifications
+      socketInstance.on('request_accepted_notification', (data) => {
+        console.log('Request accepted notification:', data);
+        loadNotifications(); // Reload notifications
+      });
+
       return () => {
         socketInstance.off('new_request_notification');
         socketInstance.off('new_message_notification');
+        socketInstance.off('request_accepted_notification');
         socketInstance.disconnect();
         socketRef.current = null;
       };
@@ -83,6 +90,15 @@ export default function Notifications({ isOpen, onClose, onNotificationsChange }
   const handleNotificationClick = async (notification) => {
     if (notification.type === 'request') {
       navigate('/requests');
+      onClose();
+    } else if (notification.type === 'request_accepted') {
+      // Mark notification as read and navigate to matches
+      try {
+        await api.markNotificationRead(notification.id, 'request_accepted');
+      } catch (error) {
+        console.error('Failed to mark notification as read:', error);
+      }
+      navigate('/matches');
       onClose();
     } else if (notification.type === 'message') {
       // Mark message as read
@@ -223,6 +239,29 @@ export default function Notifications({ isOpen, onClose, onNotificationsChange }
                               </p>
                               <p className="text-textGray text-xs mb-1 truncate">
                                 {notification.data.idea?.name}
+                              </p>
+                              <p className="text-textGray text-xs mt-1">
+                                {formatTime(notification.createdAt)}
+                              </p>
+                            </div>
+                          </>
+                        ) : notification.type === 'request_accepted' ? (
+                          <>
+                            <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-green-500/20 to-emerald-600/20 flex items-center justify-center flex-shrink-0">
+                              <span className="text-lg">✅</span>
+                            </div>
+                            <div
+                              onClick={() => handleNotificationClick(notification)}
+                              className="flex-1 min-w-0 cursor-pointer"
+                            >
+                              <p className="text-textLight text-sm font-medium mb-1">
+                                {notification.data.ideaOwner?.name} accepted your request
+                              </p>
+                              <p className="text-textGray text-xs mb-1 truncate">
+                                {notification.data.idea?.name}
+                              </p>
+                              <p className="text-green-400 text-xs mt-1 font-medium">
+                                You're now matched! 🎉
                               </p>
                               <p className="text-textGray text-xs mt-1">
                                 {formatTime(notification.createdAt)}
