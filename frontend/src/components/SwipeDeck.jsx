@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
 import { api } from '../api/api';
 
 export default function SwipeDeck() {
@@ -45,33 +45,35 @@ export default function SwipeDeck() {
     }
   };
 
-  const handleSwipe = useCallback(async (direction) => {
+  const handleSwipe = useCallback(async (direction, isDragSwipe = false) => {
     if (currentIndex >= ideas.length) return;
 
     const currentIdea = ideas[currentIndex];
-    
-    // Track which button was clicked for animation
-    setClickedButton(direction);
-    
-    // Show the like/pass indicator by temporarily moving the card
-    // This triggers the opacity transforms to show the indicator
-    const indicatorOffset = direction === 'right' ? 80 : -80;
-    x.set(indicatorOffset);
-    setIsDragging(true);
     
     // Track the exiting card and its direction
     exitingCardIdRef.current = currentIdea._id;
     exitingCardDirectionRef.current = direction;
     
-    // Wait a brief moment to show the indicator, then proceed with swipe
-    setTimeout(() => {
-      // Set direction in both state and ref for immediate access
+    if (isDragSwipe) {
+      // For drag swipes, immediately trigger exit - exit animation will handle x movement
       swipeDirectionRef.current = direction;
       setSwipeDirection(direction);
-      
-      // Update index immediately so new card appear right away
       setCurrentIndex(prev => prev + 1);
-    }, 300);
+    } else {
+      // For button clicks, show indicator briefly then immediately trigger exit
+      setClickedButton(direction);
+      const indicatorOffset = direction === 'right' ? 80 : -80;
+      x.set(indicatorOffset);
+      setIsDragging(true);
+      
+      // Very brief moment to show indicator, then immediately trigger exit
+      // Exit animation will smoothly animate from indicator position to exit
+      setTimeout(() => {
+        swipeDirectionRef.current = direction;
+        setSwipeDirection(direction);
+        setCurrentIndex(prev => prev + 1);
+      }, 100);
+    }
 
     try {
       await api.swipe(currentIdea._id, direction);
@@ -99,8 +101,14 @@ export default function SwipeDeck() {
 
   // Reset motion values when a new card appears
   useEffect(() => {
+    // Reset all motion values and state when a new card appears
     x.set(0);
     setIsDragging(false);
+    setSwipeDirection(null);
+    swipeDirectionRef.current = null;
+    setClickedButton(null);
+    exitingCardIdRef.current = null;
+    exitingCardDirectionRef.current = null;
   }, [currentIndex, x]);
 
   const handleDragStart = () => {
@@ -112,9 +120,9 @@ export default function SwipeDeck() {
     const swipeThreshold = 100;
     
     if (info.offset.x > swipeThreshold) {
-      handleSwipe('right');
+      handleSwipe('right', true);
     } else if (info.offset.x < -swipeThreshold) {
-      handleSwipe('left');
+      handleSwipe('left', true);
     } else {
       x.set(0);
     }
@@ -168,7 +176,7 @@ export default function SwipeDeck() {
       <div className="relative flex-1 flex items-center justify-center min-h-0">
 
         {/* Card */}
-        <AnimatePresence custom={exitingCardDirectionRef.current}>
+        <AnimatePresence mode="wait" custom={exitingCardDirectionRef.current}>
           <motion.div
             key={currentIdea._id}
             custom={exitingCardDirectionRef.current}
@@ -180,27 +188,38 @@ export default function SwipeDeck() {
             style={{ 
               x: x, 
               rotate: rotate,
-              zIndex: exitingCardIdRef.current === currentIdea._id ? 10 : 1
+              zIndex: 1,
+              pointerEvents: swipeDirection ? 'none' : 'auto'
             }}
             initial={{ scale: 0.9, opacity: 0, x: 0, rotate: 0 }}
-            animate={swipeDirection ? {
-              scale: 0.9,
-              opacity: 0,
-              x: swipeDirection === 'right' ? 400 : -400,
-              rotate: swipeDirection === 'right' ? 20 : -20,
-            } : {
+            animate={{
               scale: 1, 
               opacity: 1, 
               x: 0, 
               rotate: 0
             }}
-            exit={(direction) => ({
-              scale: 0.9,
-              opacity: 0,
-              x: direction === 'right' ? 400 : -400,
-              rotate: direction === 'right' ? 20 : -20,
-            })}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            exit={(direction) => {
+              // Animate x motion value to exit position
+              const exitX = direction === 'right' ? 400 : -400;
+              animate(x, exitX, {
+                type: 'spring',
+                stiffness: 400,
+                damping: 25,
+                mass: 0.5
+              });
+              
+              return {
+                scale: 0.9,
+                opacity: 0,
+                rotate: direction === 'right' ? 20 : -20,
+              };
+            }}
+            transition={{
+              type: 'spring',
+              stiffness: 400,
+              damping: 25,
+              mass: 0.5
+            }}
             className="absolute w-full cursor-grab active:cursor-grabbing"
           >
             <div className="relative">
