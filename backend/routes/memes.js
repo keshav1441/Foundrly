@@ -39,8 +39,20 @@ router.get('/:id', async (req, res) => {
 // Create meme
 router.post('/', authenticateJWT, async (req, res) => {
   try {
+    const { title, description, imageUrl } = req.body;
+
+    if (!title || !title.trim()) {
+      return res.status(400).json({ error: 'Title is required' });
+    }
+
+    if (!description || !description.trim()) {
+      return res.status(400).json({ error: 'Description is required' });
+    }
+
     const meme = await Meme.create({
-      ...req.body,
+      title: title.trim(),
+      description: description.trim(),
+      imageUrl: imageUrl?.trim() || undefined,
       submittedBy: req.user.sub,
     });
     await meme.populate('submittedBy', 'name avatar');
