@@ -18,7 +18,28 @@ router.get("/", async (req, res) => {
     }
 
     const memes = await query.exec();
-    res.json(memes);
+
+    // Get comment counts for all memes
+    const memeIds = memes.map((meme) => meme._id);
+    const commentCounts = await Comment.aggregate([
+      { $match: { meme: { $in: memeIds } } },
+      { $group: { _id: "$meme", count: { $sum: 1 } } },
+    ]);
+
+    // Create a map of meme ID to comment count
+    const countMap = {};
+    commentCounts.forEach((item) => {
+      countMap[item._id.toString()] = item.count;
+    });
+
+    // Add comment count to each meme
+    const memesWithCounts = memes.map((meme) => {
+      const memeObj = meme.toObject();
+      memeObj.commentCount = countMap[meme._id.toString()] || 0;
+      return memeObj;
+    });
+
+    res.json(memesWithCounts);
   } catch (error) {
     console.error("Get memes error:", error);
     res.status(500).json({ error: "Failed to get memes" });
@@ -35,7 +56,13 @@ router.get("/:id", async (req, res) => {
     if (!meme) {
       return res.status(404).json({ error: "Meme not found" });
     }
-    res.json(meme);
+
+    // Get comment count
+    const commentCount = await Comment.countDocuments({ meme: req.params.id });
+    const memeObj = meme.toObject();
+    memeObj.commentCount = commentCount;
+
+    res.json(memeObj);
   } catch (error) {
     console.error("Get meme error:", error);
     res.status(500).json({ error: "Failed to get meme" });

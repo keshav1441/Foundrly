@@ -66,6 +66,14 @@ export default function Feed() {
         ...prev,
         [memeId]: [...(prev[memeId] || []), response.data],
       }));
+      // Update comment count in memes array
+      setMemes((prev) =>
+        prev.map((meme) =>
+          meme._id === memeId
+            ? { ...meme, commentCount: (meme.commentCount || 0) + 1 }
+            : meme
+        )
+      );
       setNewComment((prev) => ({ ...prev, [memeId]: '' }));
       showToast('Comment added!', 'success');
     } catch (error) {
@@ -255,7 +263,7 @@ export default function Feed() {
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                       </svg>
-                      <span>{comments[meme._id]?.length || 0}</span>
+                      <span>{meme.commentCount || 0}</span>
                     </motion.button>
 
                     <motion.button
