@@ -28,6 +28,10 @@ export const api = {
   getMemes: (params = {}) => axios.get(`${API_BASE_URL}/memes`, { params }),
   createMeme: (data) => axios.post(`${API_BASE_URL}/memes`, data),
   upvoteMeme: (id) => axios.post(`${API_BASE_URL}/memes/${id}/upvote`),
+  getComments: (memeId) =>
+    axios.get(`${API_BASE_URL}/memes/${memeId}/comments`),
+  createComment: (memeId, content) =>
+    axios.post(`${API_BASE_URL}/memes/${memeId}/comments`, { content }),
 
   // Users
   getUser: (id) => axios.get(`${API_BASE_URL}/users/${id}`),
