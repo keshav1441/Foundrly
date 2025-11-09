@@ -110,8 +110,15 @@ export default function IdeaDetailModal({ isOpen, onClose, idea, onUpdate, canEd
   if (!isOpen || !idea) return null;
 
   return (
-    <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <AnimatePresence mode="wait">
+      {isOpen && idea && (
+      <motion.div
+        key={`idea-modal-${idea._id}`}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      >
         {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -131,8 +138,10 @@ export default function IdeaDetailModal({ isOpen, onClose, idea, onUpdate, canEd
         >
           {/* Close Button */}
           <button
+            type="button"
             onClick={handleClose}
-            className="absolute top-4 right-4 text-textGray hover:text-textLight transition z-10"
+            className="absolute top-4 right-4 z-50 w-10 h-10 flex items-center justify-center text-textGray hover:text-textLight hover:bg-gray-800/50 rounded-full transition-colors"
+            aria-label="Close modal"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -194,7 +203,7 @@ export default function IdeaDetailModal({ isOpen, onClose, idea, onUpdate, canEd
                   <div className="flex flex-wrap items-center gap-2">
                     {tags.map((tag, index) => (
                       <span
-                        key={index}
+                        key={`edit-tag-${tag}-${index}`}
                         className="inline-flex items-center gap-1 px-3 py-1 bg-netflixRed/20 border border-netflixRed/30 rounded-md text-textLight text-sm"
                       >
                         {tag}
@@ -234,7 +243,7 @@ export default function IdeaDetailModal({ isOpen, onClose, idea, onUpdate, canEd
                     <div className="flex flex-wrap gap-2">
                       {idea.tags.map((tag, index) => (
                         <span
-                          key={index}
+                          key={`view-tag-${tag}-${index}`}
                           className="inline-block px-3 py-1.5 bg-netflixRed/20 backdrop-blur-sm rounded-md border border-netflixRed/30"
                         >
                           <span className="text-xs font-medium text-textLight uppercase tracking-wider">
@@ -319,19 +328,20 @@ export default function IdeaDetailModal({ isOpen, onClose, idea, onUpdate, canEd
             </div>
           </div>
         </motion.div>
-      </div>
 
-      {/* Delete Confirmation Modal */}
-      <ConfirmationModal
-        isOpen={showDeleteConfirm}
-        onClose={() => setShowDeleteConfirm(false)}
-        onConfirm={confirmDelete}
-        title="Delete Idea"
-        message="Are you sure you want to delete this idea? This action cannot be undone."
-        confirmText="Delete"
-        cancelText="Cancel"
-        danger={true}
-      />
+        {/* Delete Confirmation Modal */}
+        <ConfirmationModal
+          isOpen={showDeleteConfirm}
+          onClose={() => setShowDeleteConfirm(false)}
+          onConfirm={confirmDelete}
+          title="Delete Idea"
+          message="Are you sure you want to delete this idea? This action cannot be undone."
+          confirmText="Delete"
+          cancelText="Cancel"
+          danger={true}
+        />
+      </motion.div>
+      )}
     </AnimatePresence>
   );
 }
